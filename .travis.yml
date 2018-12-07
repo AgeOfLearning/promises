@@ -1,6 +1,7 @@
 os: windows
 language: csharp
 dotnet: 2.1.300
+mono: none
 solution: "./Promises/Promises.sln"
 install:
 - nuget restore ./Promises/Promises.sln
