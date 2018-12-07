@@ -1,7 +1,7 @@
 language: csharp
-dotnet: 2.1.6
 solution: "./Promises/Promises.sln"
 install:
+- sudo apt-get install dotnet-sdk
 - nuget restore ./Promises/Promises.sln
 script:
 - msbuild /p:Configuration=Debug ./Promises/Promises.sln 
