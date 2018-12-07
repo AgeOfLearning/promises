@@ -4,7 +4,6 @@ dotnet: 2.1.300
 solution: "./Promises/Promises.sln"
 install:
 - nuget restore ./Promises/Promises.sln
-- brew install python
 - pip install ugetcli
 - nuget setapikey $NUGET_API_KEY -Source https://api.nuget.org/v3/index.json 
 script:
