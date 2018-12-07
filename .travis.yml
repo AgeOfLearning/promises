@@ -1,4 +1,4 @@
-os: osx
+os: windows
 language: csharp
 dotnet: 2.1.300
 solution: "./Promises/Promises.sln"
