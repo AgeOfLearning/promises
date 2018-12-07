@@ -5,6 +5,7 @@ mono: latest
 solution: "./Promises/Promises.sln"
 env:
   - UNITY_DOWNLOAD_CACHE="$(pwd)/unity_download_cache"
+  - UNITY_PATH="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
 cache:
   directories:
     - $UNITY_DOWNLOAD_CACHE
