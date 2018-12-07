@@ -3,6 +3,11 @@ language: csharp
 dotnet: 2.1.300
 mono: latest
 solution: "./Promises/Promises.sln"
+env:
+  - UNITY_DOWNLOAD_CACHE="$(pwd)/unity_download_cache"
+cache:
+  directories:
+    - $UNITY_DOWNLOAD_CACHE
 before_install:
   - chmod a+x ./Scripts/*.sh
 install:
