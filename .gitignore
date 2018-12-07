@@ -18,3 +18,7 @@ Promises/Promises/._uget.config.json
 ._.gitignore
 ._.travis.yml
 Scripts/._install.sh
+Scripts/._test.sh
+Scripts/._install_unity.sh
+Scripts/._deploy.sh
+Promises/Promises.Tests/._Promises.Tests.csproj
