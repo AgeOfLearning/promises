@@ -4,5 +4,5 @@ solution: "./Promises/Promises.sln"
 install:
 - nuget restore ./Promises/Promises.sln
 script:
-- dotnet msbuild /p:Configuration=Debug ./Promises/Promises.sln 
+- msbuild /p:Configuration=Debug ./Promises/Promises.sln 
 - dotnet vstest ./Promises/Promises.Tests/bin/Debug/Promises.Tests.dll /InIsolation /logger:trx
