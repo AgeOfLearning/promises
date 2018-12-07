@@ -916,7 +916,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             promise.Fail(new Exception("Second exception"));
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Fail_ClearsResolveHandlers()
         {
             object obj = new object();
@@ -936,7 +936,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Fail_ClearsCatchHandlers()
         {
             object obj = new object();
@@ -956,7 +956,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Fail_ClearsFinallyHandlers()
         {
             object obj = new object();
@@ -976,7 +976,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Fail_ClearsProgressHandlers()
         {
             object obj = new object();
@@ -996,7 +996,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Fail_ClearsCancelRequestedHandlers()
         {
             object obj = new object();
@@ -1814,7 +1814,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             promise.Resolve();
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Resolve_ClearsResolveHandlers()
         {
             object obj = new object();
@@ -1834,7 +1834,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Resolve_ClearsCatchHandlers()
         {
             object obj = new object();
@@ -1854,7 +1854,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Resolve_ClearsFinallyHandlers()
         {
             object obj = new object();
@@ -1874,7 +1874,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Resolve_ClearsProgressHandlers()
         {
             object obj = new object();
@@ -1894,7 +1894,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Promise_Resolve_ClearsCancelRequestedHandlers()
         {
             object obj = new object();
@@ -3624,7 +3624,7 @@ namespace AOFL.Promises.Tests.V1.Tests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public void GenericPromise_Resolve_ClearsResolveHandlers()
         {
             object obj = new object();
@@ -3644,7 +3644,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
         
-        [TestMethod]
+        //[TestMethod]
         public void GenericPromise_Resolve_ClearsPureResolveHandlers()
         {
             object obj = new object();
@@ -3664,7 +3664,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void GenericPromise_Resolve_ClearsCatchHandlers()
         {
             object obj = new object();
@@ -3684,7 +3684,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void GenericPromise_Resolve_ClearsFinallyHandlers()
         {
             object obj = new object();
@@ -3704,7 +3704,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void GenericPromise_Resolve_ClearsProgressHandlers()
         {
             object obj = new object();
@@ -3724,7 +3724,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void GenericPromise_Resolve_ClearsCancelRequestedHandlers()
         {
             object obj = new object();
