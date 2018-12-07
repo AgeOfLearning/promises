@@ -1,10 +1,9 @@
 os: osx
 language: csharp
+dotnet: 2.1.300
 solution: "./Promises/Promises.sln"
 install:
-- brew tap caskroom/cask
-- brew cask install dotnet
-- dotnet restore ./Promises/Promises.sln
+- nuget restore ./Promises/Promises.sln
 script:
 - msbuild /p:Configuration=Debug ./Promises/Promises.sln 
 - dotnet vstest ./Promises/Promises.Tests/bin/Debug/Promises.Tests.dll /InIsolation /logger:trx

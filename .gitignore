@@ -17,3 +17,4 @@ Promises/Promises/._Promises.csproj
 Promises/Promises/._uget.config.json
 ._.gitignore
 ._.travis.yml
+Scripts/._install.sh
