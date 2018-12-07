@@ -4,6 +4,14 @@ dotnet: 2.1.300
 solution: "./Promises/Promises.sln"
 install:
 - nuget restore ./Promises/Promises.sln
+- brew install python
+- pip install ugetcli
+- nuget setapikey $NUGET_API_KEY -Source https://api.nuget.org/v3/index.json 
 script:
 - msbuild /p:Configuration=Debug ./Promises/Promises.sln 
 - dotnet vstest ./Promises/Promises.Tests/bin/Debug/Promises.Tests.dll /InIsolation /logger:trx
+deploy:
+- ./Scripts/install_unity.sh
+- uget build -p ./Promises/Promises.csproj -configPath ./Promises/uget.config.json
+- uget create -p ./Promises/Promises.csproj -configPath ./Promises/uget.config.json
+- uget pack -p ./Promises/Promises.csproj -configPath ./Promises/uget.config.json
