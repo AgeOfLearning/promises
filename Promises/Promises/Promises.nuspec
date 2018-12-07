@@ -1,0 +1,31 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <!--*-->
+    <id>$id$</id>
+    <!--*-->
+    <version>$version$</version>
+    <title></title>
+    <!--*-->
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <!--*-->
+    <description>$description$</description>
+    <!--*-->
+    <releaseNotes>
+      - Added `IPromise IPromise&lt;T&gt;.Chain(Func&lt;T1&gt; callback)` method that allows you to convert a generic promise into a non-generic one using a callback
+      - Added IPromise&lt;T&gt; IPromise.Then&lt;T&gt;(Func&lt;T&gt; callback) to convert a non-generic promise to a generic one using a pre-defined value
+      - Added IPromise&lt;T2&gt; IPromise&lt;T1&gt;.Then&lt;T2&gt;(Func&lt;T2,T1&gt; callback);  signature to convert generic promise type without chaining (using then)
+      - Added missing variants to existing `Chain` and `Then` methods to allow passing additional properties, fixing inconsistency between signatures provided to the consumer.
+      - Improved test coverage
+    </releaseNotes>
+    <copyright>$copyright$</copyright>
+    <tags> </tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="$unityPackagePath$" target="unity"/>
+  </files>
+</package>

@@ -1,0 +1,7 @@
+{
+    "output_dir": "Output",
+    "unity_project_path": "../../UnityProjects/Promises",
+    "clean": true,
+    "configuration": "Debug",
+    "feed": "https://proget.aofl.com/nuget/AOFL-Unity-Development/"
+}
