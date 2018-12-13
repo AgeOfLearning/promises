@@ -231,6 +231,46 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual(didCatch, true);
         }
 
+
+        [TestMethod]
+        public void Promise_Catch_InvokesCallback_WhenSecondSequencedMethodFailed()
+        {
+            bool didCatch = false;
+
+            IPromise promise = new Promise();
+            promise.Sequence(new Func<IPromise>[]
+            {
+                () => GetResolvedPromise(),
+                () => GetFailedPromise(new Exception())
+            })
+            .Catch(delegate (Exception e)
+            {
+                didCatch = true;
+            });
+
+            Assert.AreEqual(didCatch, true);
+        }
+
+        [TestMethod]
+        public void Promise_Catch_InvokesCallback_WhenThirdSequencedMethodFailed()
+        {
+            bool didCatch = false;
+
+            IPromise promise = new Promise();
+            promise.Sequence(new Func<IPromise>[]
+            {
+                () => GetResolvedPromise(),
+                () => GetResolvedPromise(),
+                () => GetFailedPromise(new Exception())
+            })
+            .Catch(delegate (Exception e)
+            {
+                didCatch = true;
+            });
+
+            Assert.AreEqual(didCatch, true);
+        }
+
         [TestMethod]
         public void Promise_Catch_InvokesCallback_WhenGenericChainedPromiseFails_WithLambda()
         {
@@ -289,25 +329,6 @@ namespace AOFL.Promises.Tests.V1.Tests
             {
                 Assert.AreEqual(e, exception);
             });
-        }
-
-        [TestMethod]
-        public void Promise_Catch_InvokesCallback_WhenSecondSequencedMethodFailed()
-        {
-            bool didCatch = false;
-
-            IPromise promise = new Promise();
-            promise.Sequence(new Func<IPromise>[]
-            {
-                () => GetResolvedPromise(),
-                () => GetFailedPromise(new Exception())
-            })
-            .Catch(delegate (Exception e)
-            {
-                didCatch = true;
-            });
-
-            Assert.AreEqual(didCatch, true);
         }
 
         [TestMethod]
@@ -402,7 +423,7 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             var promise = GetPromise();
 
-            promise.Chain(delegate(string property1)
+            promise.Chain(delegate (string property1)
             {
                 var secondPromise = GetResolvedPromise();
                 didPropagate = true;
@@ -553,6 +574,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsTrue(didPropagate, "did not propagate");
         }
 
+        [TestMethod]
         public void Promise_GenericChain_InvokesNextPromise_WhenFirstPromiseResolved_WithOneProperty()
         {
             bool didPropagate = false;
@@ -560,7 +582,7 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             var promise = GetPromise();
 
-            promise.Chain(delegate(string property1)
+            promise.Chain(delegate (string property1)
             {
                 var secondPromise = GetBoolResolvedPromise();
                 didPropagate = true;
@@ -574,6 +596,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual("abc", p1, "Did not propagate property");
         }
 
+        [TestMethod]
         public void Promise_GenericChain_InvokesNextPromise_WhenFirstPromiseResolved_WithTwoProperties()
         {
             bool didPropagate = false;
@@ -598,6 +621,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual("def", p2, "Did not propagate property");
         }
 
+        [TestMethod]
         public void Promise_GenericChain_InvokesNextPromise_WhenFirstPromiseResolved_WithThreeProperties()
         {
             bool didPropagate = false;
@@ -613,6 +637,7 @@ namespace AOFL.Promises.Tests.V1.Tests
                 didPropagate = true;
                 p1 = property1;
                 p2 = property2;
+                p3 = property3;
                 return secondPromise;
             }, "abc", "def", "ghi");
 
@@ -761,7 +786,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             bool didInvokeCatch = false;
 
             IPromise<int> promise = new Promise<int>();
-            IPromise<string> second = promise.Then(delegate(int value)
+            IPromise<string> second = promise.Then(delegate (int value)
             {
                 return "value=" + value.ToString();
             });
@@ -916,19 +941,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             promise.Fail(new Exception("Second exception"));
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Fail_ClearsResolveHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Then(callback);
-            promise.Fail(new Exception());
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Then(() =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Fail(new Exception());
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -936,19 +966,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Fail_ClearsCatchHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Catch((e) => callback());
-            promise.Fail(new Exception());
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Catch((Exception e) =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Fail(new Exception());
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -956,19 +991,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Fail_ClearsFinallyHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Finally(callback);
-            promise.Fail(new Exception());
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Finally(() =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Fail(new Exception());
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -976,19 +1016,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Fail_ClearsProgressHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Progress((progress) => callback());
-            promise.Resolve();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Progress((progress) =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Fail(new Exception());
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -996,19 +1041,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Fail_ClearsCancelRequestedHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.CancelRequested += (sender, e) => callback();
-            promise.Fail(new Exception());
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.CancelRequested += (sender, e) =>
+                {
+                    Console.WriteLine(obj);
+                };
+            })();
+
+            promise.Fail(new Exception());
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -1050,7 +1100,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsTrue(didCatch, "Did not catch");
             Assert.AreEqual(PromiseState.Failed, allPromise.State, "Result promise did not fail properlt");
         }
-        
+
         [TestMethod]
         public void Promise_Fail_DoesNotThrowException_WhenSequenceIsUsed_WhenResultPromiseIsManuallyFailed()
         {
@@ -1318,7 +1368,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             bool didInvoke = false;
 
             IPromise promise = new Promise();
-            IPromise<int> second = promise.Then(delegate 
+            IPromise<int> second = promise.Then(delegate
             {
                 return 567;
             });
@@ -1440,7 +1490,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             string p1 = null;
 
             IPromise promise = GetPromise();
-            promise.Then(delegate(string property1)
+            promise.Then(delegate (string property1)
             {
                 didResolve = true;
                 p1 = property1;
@@ -1535,7 +1585,7 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreEqual(3, result);
         }
-        
+
         [TestMethod]
         public void Promise_Resolve_InvokesGenericThenCallback()
         {
@@ -1543,7 +1593,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             string resolvedValue = null;
 
             IPromise promise = new Promise();
-            IPromise<string> second = promise.Then(delegate()
+            IPromise<string> second = promise.Then(delegate ()
             {
                 return "abc";
             });
@@ -1607,7 +1657,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual(true, didResolve, "Did not resolve");
             Assert.AreEqual("abc, def", resolvedValue, "Did not propagate properties");
         }
-        
+
         [TestMethod]
         public void Promise_Resolve_InvokesGenericThenCallback_WithThreeProperties()
         {
@@ -1655,7 +1705,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             string p1 = null;
 
             IPromise promise = new Promise();
-            promise.Chain(delegate(string property1) {
+            promise.Chain(delegate (string property1) {
                 didInvoke = true;
                 p1 = property1;
                 return Promise.Resolved();
@@ -1814,19 +1864,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             promise.Resolve();
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Resolve_ClearsResolveHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Then(callback);
-            promise.Resolve();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Then(() =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve();
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -1834,19 +1889,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Resolve_ClearsCatchHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Catch((e) => callback());
-            promise.Resolve();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Catch((exception) =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve();
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -1854,19 +1914,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Resolve_ClearsFinallyHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Finally(callback);
-            promise.Resolve();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Finally(() =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve();
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -1874,19 +1939,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Resolve_ClearsProgressHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Progress((progress) => callback());
-            promise.Resolve();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Progress((progress) =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve();
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -1894,19 +1964,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Promise_Resolve_ClearsCancelRequestedHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
             IPromise promise = new Promise();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.CancelRequested += (sender, e) => callback();
-            promise.Resolve();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.CancelRequested += (sender, e) =>
+                {
+                    Console.WriteLine(obj);
+                };
+            })();
+
+            promise.Resolve();
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -2334,7 +2409,7 @@ namespace AOFL.Promises.Tests.V1.Tests
         public void Promise_GenericThen_InvokesCallback_WhenPromiseIsResolved()
         {
             IPromise promise = GetResolvedPromise();
-            IPromise<int> second = promise.Then(delegate 
+            IPromise<int> second = promise.Then(delegate
             {
                 return 123;
             });
@@ -2354,7 +2429,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             {
                 return 123;
             })
-            .Catch(delegate(Exception e) 
+            .Catch(delegate (Exception e)
             {
                 didCatch = true;
             });
@@ -2555,6 +2630,66 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.IsTrue(didFail, "resulting promise did not fail");
         }
+
+        [TestMethod]
+        public void GenericPromise_Catch_InvokesCallback_WhenFirstSequencedMethodFailed()
+        {
+            bool didCatch = false;
+
+            IPromise<IEnumerable<IPromise>> promise = new Promise<IEnumerable<IPromise>>();
+            promise.Sequence(new Func<IPromise>[]
+            {
+                () => GetBoolFailedPromise(),
+                () => GetBoolResolvedPromise()
+            })
+            .Catch(delegate (Exception e)
+            {
+                didCatch = true;
+            });
+
+            Assert.AreEqual(didCatch, true);
+        }
+
+
+        [TestMethod]
+        public void GenericPromise_Catch_InvokesCallback_WhenSecondSequencedMethodFailed()
+        {
+            bool didCatch = false;
+
+            IPromise<IEnumerable<IPromise>> promise = new Promise<IEnumerable<IPromise>>();
+            promise.Sequence(new Func<IPromise>[]
+            {
+                () => GetResolvedPromise(),
+                () => GetFailedPromise(new Exception())
+            })
+            .Catch(delegate (Exception e)
+            {
+                didCatch = true;
+            });
+
+            Assert.AreEqual(didCatch, true);
+        }
+
+        [TestMethod]
+        public void GenericPromise_Catch_InvokesCallback_WhenThirdSequencedMethodFailed()
+        {
+            bool didCatch = false;
+
+            IPromise<IEnumerable<IPromise>> promise = new Promise<IEnumerable<IPromise>>();
+            promise.Sequence(new Func<IPromise>[]
+            {
+                () => GetResolvedPromise(),
+                () => GetResolvedPromise(),
+                () => GetFailedPromise(new Exception())
+            })
+            .Catch(delegate (Exception e)
+            {
+                didCatch = true;
+            });
+
+            Assert.AreEqual(didCatch, true);
+        }
+
         #endregion
 
         #region Promise<T>.Chain
@@ -2587,7 +2722,7 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             var promise = GetBoolPromise();
 
-            promise.Chain(delegate(bool boolValue, string p1)
+            promise.Chain(delegate (bool boolValue, string p1)
             {
                 var secondPromise = GetResolvedPromise();
                 didPropagate = true;
@@ -2659,7 +2794,7 @@ namespace AOFL.Promises.Tests.V1.Tests
         {
             bool didCatch = false;
             var promise = GetBoolPromise();
-            promise.Chain(delegate(bool value) 
+            promise.Chain(delegate (bool value)
             {
                 return GetPromise();
             })
@@ -2684,7 +2819,7 @@ namespace AOFL.Promises.Tests.V1.Tests
                 requestedToCancel = true;
             };
 
-            var resultPromise = firstPromise.Chain(delegate(bool value) 
+            var resultPromise = firstPromise.Chain(delegate (bool value)
             {
                 return GetPromise();
             });
@@ -2706,7 +2841,7 @@ namespace AOFL.Promises.Tests.V1.Tests
                 requestedToCancelFirstPromise = true;
             };
 
-            var resultPromise = firstPromise.Chain(delegate(bool value)
+            var resultPromise = firstPromise.Chain(delegate (bool value)
             {
                 var secondPromise = GetPromise();
                 secondPromise.CancelRequested += (sender, e) =>
@@ -2723,7 +2858,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual(requestedToCancelFirstPromise, false, "requested to cancel first promise when it shouldn't have");
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
         }
-        
+
         #endregion
 
         #region Promise<T>.Chain<T2>
@@ -2818,7 +2953,7 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             var promise = GetBoolPromise();
 
-            promise.Chain(delegate(bool value, string property1)
+            promise.Chain(delegate (bool value, string property1)
             {
                 var secondPromise = GetIntResolvedPromise();
                 didPropagate = true;
@@ -3128,7 +3263,7 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.IsTrue(defaultExceptionHandlerCaught, "Did not invoke uncaught exception handler");
         }
-        
+
         [TestMethod]
         public void GenericPromise_Finally_Invokes_WhenPromiseFailed()
         {
@@ -3269,7 +3404,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             bool didInvoke = false;
 
             IPromise<int> promise = new Promise<int>();
-            IPromise<string> second = promise.Then(delegate(int value)
+            IPromise<string> second = promise.Then(delegate (int value)
             {
                 return "value=" + value.ToString();
             });
@@ -3314,7 +3449,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             {
                 return "value=" + value.ToString();
             });
-            second.Then(delegate(string value)
+            second.Then(delegate (string value)
             {
                 didResolve = true;
                 resolvedValue = value;
@@ -3500,13 +3635,13 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsTrue(didResolve, "did not invoke");
         }
         #endregion
-        
+
         #region Promise<T>.Then<T2>
         [TestMethod]
         public void GenericPromise_GenericThen_InvokesCallback_WhenPromiseIsResolved()
         {
             IPromise<int> promise = GetIntResolvedPromise(123);
-            IPromise<string> second = promise.Then(delegate(int value)
+            IPromise<string> second = promise.Then(delegate (int value)
             {
                 return "value=" + value.ToString();
             });
@@ -3561,11 +3696,11 @@ namespace AOFL.Promises.Tests.V1.Tests
             var exc = new Exception();
 
             IPromise<int> promise = GetFailedGenericPromise<int>(exc);
-            IPromise<string> second = promise.Then(delegate(int value)
+            IPromise<string> second = promise.Then(delegate (int value)
             {
                 return "value=" + value.ToString();
             })
-            .Catch(delegate(Exception e)
+            .Catch(delegate (Exception e)
             {
                 didCatch = true;
             });
@@ -3581,7 +3716,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             bool didRequestToCancel = false;
 
             IPromise<int> promise = GetIntPromise();
-            IPromise<string> second = promise.Then(delegate(int value)
+            IPromise<string> second = promise.Then(delegate (int value)
             {
                 return "value=" + value.ToString();
             });
@@ -3624,39 +3759,49 @@ namespace AOFL.Promises.Tests.V1.Tests
         }
 
 
-        //[TestMethod]
+        [TestMethod]
         public void GenericPromise_Resolve_ClearsResolveHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
-            IPromise<float> promise = new Promise<float>();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Then((value) => callback());
-            promise.Resolve(123f);
+            IPromise<string> promise = new Promise<string>();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Then((str) =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve("aaa");
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
-        
-        //[TestMethod]
+
+        [TestMethod]
         public void GenericPromise_Resolve_ClearsPureResolveHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
-            IPromise<float> promise = new Promise<float>();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Then(callback);
-            promise.Resolve(123f);
+            IPromise<string> promise = new Promise<string>();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Then(() =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve("aaa");
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -3664,19 +3809,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void GenericPromise_Resolve_ClearsCatchHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
-            IPromise<float> promise = new Promise<float>();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Catch((e) => callback());
-            promise.Resolve(123f);
+            IPromise<string> promise = new Promise<string>();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Catch((exception) =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve("aaa");
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -3684,19 +3834,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void GenericPromise_Resolve_ClearsFinallyHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
-            IPromise<float> promise = new Promise<float>();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Finally(callback);
-            promise.Resolve(123f);
+            IPromise<string> promise = new Promise<string>();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Finally(() =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve("aaa");
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -3704,19 +3859,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void GenericPromise_Resolve_ClearsProgressHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
-            IPromise<float> promise = new Promise<float>();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.Progress((progress) => callback());
-            promise.Resolve(123f);
+            IPromise<string> promise = new Promise<string>();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.Progress((progress) =>
+                {
+                    Console.WriteLine(obj);
+                });
+            })();
+
+            promise.Resolve("aaa");
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -3724,19 +3884,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsFalse(weakReference.IsAlive, "promise is still holding a reference to a handler");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void GenericPromise_Resolve_ClearsCancelRequestedHandlers()
         {
-            object obj = new object();
-            var weakReference = new WeakReference(obj);
+            WeakReference weakReference = null;
 
-            IPromise<float> promise = new Promise<float>();
-            Action callback = CreateReferenceHoldingAction(obj);
-            promise.CancelRequested += (sender, e) => callback();
-            promise.Resolve(123f);
+            IPromise<string> promise = new Promise<string>();
 
-            obj = null;
-            callback = null;
+            new Action(() => {
+                var obj = new object();
+                weakReference = new WeakReference(obj);
+
+                promise.CancelRequested += (sender, e) =>
+                {
+                    Console.WriteLine(obj);
+                };
+            })();
+
+            promise.Resolve("aaa");
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -3921,24 +4086,6 @@ namespace AOFL.Promises.Tests.V1.Tests
             IPromise promise = new Promise();
             promise.Resolve();
             return promise;
-        }
-
-
-        private IPromise<string> GetStringResolvedPromise(string resolvedValue)
-        {
-            IPromise<string> promise = new Promise<string>();
-
-            promise.Resolve(resolvedValue);
-
-            return promise;
-        }
-        
-        private Action CreateReferenceHoldingAction(object value)
-        {
-            return () =>
-            {
-                Console.WriteLine(value); // Value is not going to be GC'ed until callback is destroyed
-            };
         }
         #endregion
     }

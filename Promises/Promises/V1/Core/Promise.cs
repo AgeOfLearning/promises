@@ -386,13 +386,14 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise Sequence(IEnumerable<Func<IPromise>> promises)
         {
+            List<IPromise> actingPromises = new List<IPromise>();
             int promiseCount = promises.Count();
             int index = 0;
 
+
             IPromise returnPromise = this;
             IPromise firstPromise = promises.First()?.Invoke();
-
-            IPromise currentPromise = firstPromise;
+            actingPromises.Add(firstPromise);
 
             Action resolveCallback = null;
             resolveCallback = delegate
@@ -401,7 +402,9 @@ namespace AOFL.Promises.V1.Core
 
                 if (index < promiseCount)
                 {
-                    currentPromise = promises.ElementAt(index)?.Invoke();
+                    IPromise currentPromise = promises.ElementAt(index)?.Invoke();
+                    actingPromises.Add(currentPromise);
+
                     currentPromise.Then(resolveCallback);
                     currentPromise.Catch(delegate(Exception e)
                     {
@@ -434,7 +437,8 @@ namespace AOFL.Promises.V1.Core
             // Add request cancellation
             returnPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
             {
-                if(currentPromise.State == PromiseState.Pending)
+                IPromise currentPromise = actingPromises.ElementAt(index);
+                if (currentPromise.State == PromiseState.Pending)
                 {
                     currentPromise.RequestCancel();
                 }
@@ -1388,9 +1392,7 @@ namespace AOFL.Promises.V1.Core
 
             IPromise firstPromise = promises.First()?.Invoke();
             actingPromises.Add(firstPromise);
-
-            IPromise currentPromise = firstPromise;
-
+            
             Action resolveCallback = null;
             resolveCallback = delegate
             {
@@ -1398,13 +1400,16 @@ namespace AOFL.Promises.V1.Core
 
                 if (index < promiseCount)
                 {
-                    currentPromise = promises.ElementAt(index)?.Invoke();
+                    IPromise currentPromise = promises.ElementAt(index)?.Invoke();
                     actingPromises.Add(currentPromise);
 
                     currentPromise.Then(resolveCallback);
                     currentPromise.Catch(delegate(Exception e)
                     {
-                        returnPromise.Fail(e);
+                        if (returnPromise.State == PromiseState.Pending)
+                        {
+                            returnPromise.Fail(e);
+                        }
                     });
                 }
                 else
@@ -1416,12 +1421,16 @@ namespace AOFL.Promises.V1.Core
             firstPromise.Then(resolveCallback);
             firstPromise.Catch(delegate(Exception e)
             {
-                returnPromise.Fail(e);
+                if (returnPromise.State == PromiseState.Pending)
+                {
+                    returnPromise.Fail(e);
+                }
             });
 
             // Add request cancellation
             returnPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
             {
+                IPromise currentPromise = actingPromises.ElementAt(index);
                 if (currentPromise.State == PromiseState.Pending)
                 {
                     currentPromise.RequestCancel();
