@@ -1,12 +1,8 @@
-os: osx
 language: csharp
 dotnet: 2.1.300
 mono: latest
 env:
-  - UNITY_DOWNLOAD_CACHE="$(pwd)/unity_download_cache" UNITY_PATH="/Applications/Unity/Unity.app/Contents/MacOS/Unity" NUGET_PATH="/Library/Frameworks/Mono.framework/Versions/Current/Commands/nuget"
-cache:
-  directories:
-    - $UNITY_DOWNLOAD_CACHE
+  - NUGET_PATH="/Library/Frameworks/Mono.framework/Versions/Current/Commands/nuget"
 before_install:
   - chmod a+x ./Scripts/*.sh
 install:
