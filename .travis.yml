@@ -1,3 +1,4 @@
+os: osx
 language: csharp
 dotnet: 2.1.300
 mono: latest
@@ -7,6 +8,8 @@ before_install:
   - chmod a+x ./Scripts/*.sh
 install:
   - nuget restore ./Promises/Promises.sln
+  - apt-get install libffi-dev libssl-dev
+  - pip install -U requests[security]
   - pip install ugetcli
   - nuget setapikey $NUGET_API_KEY -Source https://api.nuget.org/v3/index.json 
 script: 
