@@ -1,5 +1,12 @@
 # C# Promises #
 
+[travis-ci-status]: https://img.shields.io/travis/AgeOfLearning/promises.svg
+[nuget-status]: https://img.shields.io/nuget/vpre/Promises.svg
+
+[![travis][travis-ci-status]](https://travis-ci.org/AgeOfLearning/promises)
+[![nuget][nuget-status]](https://www.nuget.org/packages/Promises/)
+
+
 Promises library for C# and Unity
 
 ```c#
