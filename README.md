@@ -17,9 +17,10 @@ DownloadSomething(path)
 
 
 # Installation #
-This library can be installed via [NuGet Package](https://proget.aofl.com/feeds/AOFL-Unity/Promises). 
+This library can be installed via [NuGet Package](https://www.nuget.org/packages/Promises/). 
 
-To install in Unity, please use [uGet Package Manager](https://gitlab.aofl.com/UnityEngineers/uget-package-manager)
+# Unity Installation #
+To install in Unity, extract the NuGet package and import the included *.unitypackage.
 
 
 
