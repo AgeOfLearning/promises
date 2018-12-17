@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Promises")]
-[assembly: AssemblyDescription("A Promises library for Age of Learning.")]
+[assembly: AssemblyDescription("A SOLID C# promises library.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Age of Learning")]
 [assembly: AssemblyProduct("Promises")]
