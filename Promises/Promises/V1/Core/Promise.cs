@@ -768,110 +768,110 @@ namespace AOFL.Promises.V1.Core
         #region IPromiseBase Implementation
 
         #region Catch
-        IPromiseBase IPromiseBase.Catch(Action<Exception> callback)
+        IFuture IFuture.Catch(Action<Exception> callback)
         {
             return Catch(callback);
         }
 
-        IPromiseBase IPromiseBase.Catch<TException>(Action<TException> callback)
+        IFuture IFuture.Catch<TException>(Action<TException> callback)
         {
             return Catch(callback);
         }
         #endregion
 
         #region Then
-        IPromiseBase IPromiseBase.Then(Action callback)
+        IFuture IFuture.Then(Action callback)
         {
             return Then(callback);
         }
 
 
-        IPromiseBase IPromiseBase.Then<P1>(Action<P1> callback, P1 property1)
+        IFuture IFuture.Then<P1>(Action<P1> callback, P1 property1)
         {
             return Then(callback, property1);
         }
 
-        IPromiseBase IPromiseBase.Then<P1, P2>(Action<P1, P2> callback, P1 property1, P2 property2)
+        IFuture IFuture.Then<P1, P2>(Action<P1, P2> callback, P1 property1, P2 property2)
         {
             return Then(callback, property1, property2);
         }
 
-        IPromiseBase IPromiseBase.Then<P1, P2, P3>(Action<P1, P2, P3> callback, P1 property1, P2 property2, P3 property3)
+        IFuture IFuture.Then<P1, P2, P3>(Action<P1, P2, P3> callback, P1 property1, P2 property2, P3 property3)
         {
             return Then(callback, property1, property2, property3);
         }
 
-        IPromiseBase<T> IPromiseBase.Then<T>(Func<T> callback)
+        IFuture<T> IFuture.Then<T>(Func<T> callback)
         {
             return Then(callback);
         }
 
-        IPromiseBase<T> IPromiseBase.Then<T, P1>(Func<P1, T> callback, P1 property1)
+        IFuture<T> IFuture.Then<T, P1>(Func<P1, T> callback, P1 property1)
         {
             return Then(callback, property1);
         }
 
-        IPromiseBase<T> IPromiseBase.Then<T, P1, P2>(Func<P1, P2, T> callback, P1 property1, P2 property2)
+        IFuture<T> IFuture.Then<T, P1, P2>(Func<P1, P2, T> callback, P1 property1, P2 property2)
         {
             return Then(callback, property1, property2);
         }
 
-        IPromiseBase<T> IPromiseBase.Then<T, P1, P2, P3>(Func<P1, P2, P3, T> callback, P1 property1, P2 property2, P3 property3)
+        IFuture<T> IFuture.Then<T, P1, P2, P3>(Func<P1, P2, P3, T> callback, P1 property1, P2 property2, P3 property3)
         {
             return Then(callback, property1, property2, property3);
         }
         #endregion
 
         #region Chain
-        public IPromiseBase Chain(Func<IPromiseBase> callback)
+        public IFuture Chain(Func<IFuture> callback)
         {
             return Chain(callback);
         }
-        public IPromiseBase Chain<P1>(Func<P1, IPromiseBase> callback, P1 property1)
+        public IFuture Chain<P1>(Func<P1, IFuture> callback, P1 property1)
         {
             return Chain(callback, property1);
         }
 
-        public IPromiseBase Chain<P1, P2>(Func<P1, P2, IPromiseBase> callback, P1 property1, P2 property2)
+        public IFuture Chain<P1, P2>(Func<P1, P2, IFuture> callback, P1 property1, P2 property2)
         {
             return Chain(callback, property1, property2);
         }
 
-        public IPromiseBase Chain<P1, P2, P3>(Func<P1, P2, P3, IPromiseBase> callback, P1 property1, P2 property2, P3 property3)
+        public IFuture Chain<P1, P2, P3>(Func<P1, P2, P3, IFuture> callback, P1 property1, P2 property2, P3 property3)
         {
             return Chain(callback, property1, property2, property3);
         }
 
-        public IPromiseBase<T> Chain<T>(Func<IPromiseBase<T>> callback)
+        public IFuture<T> Chain<T>(Func<IFuture<T>> callback)
         {
             return Chain(callback);
         }
 
-        public IPromiseBase<T> Chain<T, P1>(Func<P1, IPromiseBase<T>> callback, P1 property1)
+        public IFuture<T> Chain<T, P1>(Func<P1, IFuture<T>> callback, P1 property1)
         {
             return Chain(callback, property1);
         }
 
-        public IPromiseBase<T> Chain<T, P1, P2>(Func<P1, P2, IPromiseBase<T>> callback, P1 property1, P2 property2)
+        public IFuture<T> Chain<T, P1, P2>(Func<P1, P2, IFuture<T>> callback, P1 property1, P2 property2)
         {
             return Chain(callback, property1, property2);
         }
 
-        public IPromiseBase<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IPromiseBase<T>> callback, P1 property1, P2 property2, P3 property3)
+        public IFuture<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IFuture<T>> callback, P1 property1, P2 property2, P3 property3)
         {
             return Chain(callback, property1, property2, property3);
         }
         #endregion
 
         #region Progress
-        IPromiseBase IPromiseBase.Progress(Action<float> progressHandler)
+        IFuture IFuture.Progress(Action<float> progressHandler)
         {
             return Progress(progressHandler);
         }
         #endregion
 
         #region Finally
-        IPromiseBase IPromiseBase.Finally(Action callback)
+        IFuture IFuture.Finally(Action callback)
         {
             return Finally(callback);
         }
@@ -1460,110 +1460,110 @@ namespace AOFL.Promises.V1.Core
 
         #region IPromiseBase Implementation
         #region Then
-        IPromiseBase<T1> IPromiseBase<T1>.Then(Action<T1> callback)
+        IFuture<T1> IFuture<T1>.Then(Action<T1> callback)
         {
             return Then(callback);
         }
 
-        IPromiseBase<T1> IPromiseBase<T1>.Then<P1>(Action<T1, P1> callback, P1 property1)
+        IFuture<T1> IFuture<T1>.Then<P1>(Action<T1, P1> callback, P1 property1)
         {
             return Then(callback, property1);
         }
 
-        IPromiseBase<T1> IPromiseBase<T1>.Then<P1, P2>(Action<T1, P1, P2> callback, P1 property1, P2 property2)
+        IFuture<T1> IFuture<T1>.Then<P1, P2>(Action<T1, P1, P2> callback, P1 property1, P2 property2)
         {
             return Then(callback, property1, property2);
         }
 
-        IPromiseBase<T1> IPromiseBase<T1>.Then<P1, P2, P3>(Action<T1, P1, P2, P3> callback, P1 property1, P2 property2, P3 property3)
+        IFuture<T1> IFuture<T1>.Then<P1, P2, P3>(Action<T1, P1, P2, P3> callback, P1 property1, P2 property2, P3 property3)
         {
             return Then(callback, property1, property2, property3);
         }
 
-        IPromiseBase<T2> IPromiseBase<T1>.Then<T2>(Func<T1, T2> callback)
+        IFuture<T2> IFuture<T1>.Then<T2>(Func<T1, T2> callback)
         {
             return Then(callback);
         }
 
-        IPromiseBase<T2> IPromiseBase<T1>.Then<T2, P1>(Func<T1, P1, T2> callback, P1 property1)
+        IFuture<T2> IFuture<T1>.Then<T2, P1>(Func<T1, P1, T2> callback, P1 property1)
         {
             return Then(callback, property1);
         }
 
-        IPromiseBase<T2> IPromiseBase<T1>.Then<T2, P1, P2>(Func<T1, P1, P2, T2> callback, P1 property1, P2 property2)
+        IFuture<T2> IFuture<T1>.Then<T2, P1, P2>(Func<T1, P1, P2, T2> callback, P1 property1, P2 property2)
         {
             return Then(callback, property1, property2);
         }
 
-        IPromiseBase<T2> IPromiseBase<T1>.Then<T2, P1, P2, P3>(Func<T1, P1, P2, P3, T2> callback, P1 property1, P2 property2, P3 property3)
+        IFuture<T2> IFuture<T1>.Then<T2, P1, P2, P3>(Func<T1, P1, P2, P3, T2> callback, P1 property1, P2 property2, P3 property3)
         {
             return Then(callback, property1, property2, property3);
         }
         #endregion
 
         #region Chain
-        public IPromiseBase Chain(Func<T1, IPromiseBase> callback)
+        public IFuture Chain(Func<T1, IFuture> callback)
         {
             return Chain(callback);
         }
 
-        public IPromiseBase Chain<P1>(Func<T1, P1, IPromiseBase> callback, P1 property1)
+        public IFuture Chain<P1>(Func<T1, P1, IFuture> callback, P1 property1)
         {
             return Chain(callback, property1);
         }
 
-        public IPromiseBase Chain<P1, P2>(Func<T1, P1, P2, IPromiseBase> callback, P1 property1, P2 property2)
+        public IFuture Chain<P1, P2>(Func<T1, P1, P2, IFuture> callback, P1 property1, P2 property2)
         {
             return Chain(callback, property1, property2);
         }
 
-        public IPromiseBase Chain<P1, P2, P3>(Func<T1, P1, P2, P3, IPromiseBase> callback, P1 property1, P2 property2, P3 property3)
+        public IFuture Chain<P1, P2, P3>(Func<T1, P1, P2, P3, IFuture> callback, P1 property1, P2 property2, P3 property3)
         {
             return Chain(callback, property1, property2, property3);
         }
 
-        public IPromiseBase<T2> Chain<T2>(Func<T1, IPromiseBase<T2>> callback)
+        public IFuture<T2> Chain<T2>(Func<T1, IFuture<T2>> callback)
         {
             return Chain(callback);
         }
 
-        public IPromiseBase<T2> Chain<T2, P1>(Func<T1, P1, IPromiseBase<T2>> callback, P1 property1)
+        public IFuture<T2> Chain<T2, P1>(Func<T1, P1, IFuture<T2>> callback, P1 property1)
         {
             return Chain(callback, property1);
         }
 
-        public IPromiseBase<T2> Chain<T2, P1, P2>(Func<T1, P1, P2, IPromiseBase<T2>> callback, P1 property1, P2 property2)
+        public IFuture<T2> Chain<T2, P1, P2>(Func<T1, P1, P2, IFuture<T2>> callback, P1 property1, P2 property2)
         {
             return Chain(callback, property1, property2);
         }
 
-        public IPromiseBase<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IPromiseBase<T2>> callback, P1 property1, P2 property2, P3 property3)
+        public IFuture<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IFuture<T2>> callback, P1 property1, P2 property2, P3 property3)
         {
             return Chain(callback, property1, property2, property3);
         }
         #endregion
 
         #region Catch
-        IPromiseBase<T1> IPromiseBase<T1>.Catch(Action<Exception> callback)
+        IFuture<T1> IFuture<T1>.Catch(Action<Exception> callback)
         {
             return Catch(callback);
         }
 
-        IPromiseBase<T1> IPromiseBase<T1>.Catch<TException>(Action<TException> callback)
+        IFuture<T1> IFuture<T1>.Catch<TException>(Action<TException> callback)
         {
             return Catch(callback);
         }
         #endregion
 
         #region Progress
-        IPromiseBase<T1> IPromiseBase<T1>.Progress(Action<float> progressHandler)
+        IFuture<T1> IFuture<T1>.Progress(Action<float> progressHandler)
         {
             return Progress(progressHandler);
         }
         #endregion
 
         #region Finally
-        IPromiseBase<T1> IPromiseBase<T1>.Finally(Action callback)
+        IFuture<T1> IFuture<T1>.Finally(Action callback)
         {
             return Finally(callback);
         }

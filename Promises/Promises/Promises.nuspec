@@ -14,7 +14,7 @@
     <description>$description$</description>
     <!--*-->
     <releaseNotes>
-      Adding lib/unity to NuGet package for supporting NuGetForUnity.
+      Semantic change from IPromiseBase to IFuture. IPromiseBase made obsolete, will remove in future version.
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags> </tags>
