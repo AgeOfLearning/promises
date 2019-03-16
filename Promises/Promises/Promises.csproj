@@ -65,7 +65,7 @@
     <Compile Include="V1\Core\Promise.cs" />
     <Compile Include="V1\Core\PromiseState.cs" />
     <Compile Include="V1\Interfaces\IPromise.cs" />
-    <Compile Include="V1\Interfaces\IPromiseBase.cs" />
+    <Compile Include="V1\Interfaces\IFuture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Promises.nuspec">

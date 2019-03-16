@@ -7,7 +7,7 @@ using System.Text;
 
 namespace AOFL.Promises.V1.Interfaces
 {
-    public interface IPromise : IPromiseBase
+    public interface IPromise : IFuture
     {
         event PromiseCancelRequestedHandler CancelRequested;
 
@@ -72,7 +72,7 @@ namespace AOFL.Promises.V1.Interfaces
         new void RequestCancel();
     }
 
-    public interface IPromise<T1> : IPromiseBase<T1>, IPromise
+    public interface IPromise<T1> : IFuture<T1>, IPromise
     {
         new T1 Value { get; }
 
