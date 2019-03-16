@@ -310,7 +310,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             IPromise promise = new Promise();
             promise.Fail(new Exception());
 
-            var testPromise = (IPromiseBase)promise;
+            var testPromise = (IFuture)promise;
 
             testPromise.Catch(delegate
             {
@@ -2305,7 +2305,7 @@ namespace AOFL.Promises.Tests.V1.Tests
         {
             bool didResolve = false;
 
-            IPromiseBase promise = (IPromiseBase)GetResolvedPromise();
+            var promise = (IFuture)GetResolvedPromise();
 
             promise.Then(delegate
             {
@@ -3625,7 +3625,7 @@ namespace AOFL.Promises.Tests.V1.Tests
         public void GenericPromise_Then_InvokesCallback_WhenPromiseIsResolved_WhenCastIPromiseBase()
         {
             bool didResolve = false;
-            var promise = (IPromiseBase<bool>)GetBoolResolvedPromise(true);
+            var promise = (IFuture<bool>)GetBoolResolvedPromise(true);
             promise.Then(delegate (bool value)
             {
                 Assert.AreEqual(value, true);
