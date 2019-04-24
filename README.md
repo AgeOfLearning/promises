@@ -36,6 +36,7 @@ To install in Unity, extract the NuGet package and import the included *.unitypa
 * [Finally()](#finally)
 * [All()](#all)
 * [Sequence()](#sequence)
+* [Aggregate()](#aggregate)
 * [Any()](#any)
 * [Promise Cancellation](#cancellation)
 * [Failed() and Resolved()](#creating-failed-and-resolved-promise)
