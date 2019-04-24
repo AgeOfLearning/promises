@@ -76,8 +76,20 @@ namespace AOFL.Promises.V1.Interfaces
     {
         new T1 Value { get; }
 
+        #region Sequence
         new IPromise<IEnumerable<IPromise>> Sequence(IEnumerable<Func<IPromise>> promises);
+        IPromise<T1> Sequence(T1 initialValue, IEnumerable<Func<T1, IPromise<T1>>> promises);
+        #endregion
+
+        #region All
         new IPromise All(IEnumerable<IPromise> promises);
+        #endregion
+
+        #region Aggregate
+        IPromise<T1> Aggregate(IEnumerable<T1> source, Func<T1, T1, IPromise<T1>> func);
+        IPromise<T1> Aggregate(IEnumerable<T1> source, T1 initialValue, Func<T1, T1, IPromise<T1>> func);
+        IPromise<T1> Aggregate(IEnumerable<T1> source, T1 initialValue, Func<T1, T1, IPromise<T1>> func, Func<T1, IPromise<T1>> resultSelector);
+        #endregion
 
         #region Then
         new IPromise<T1> Then(Action<T1> callback);

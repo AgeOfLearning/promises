@@ -14,7 +14,8 @@
     <description>$description$</description>
     <!--*-->
     <releaseNotes>
-      Adding lib/unity to NuGet package for supporting NuGetForUnity.
+      - Added IPromise<T>.Aggregate() allowing to apply an asynchronous accumulator function over a sequence of values.
+      - Added IPromise<T>.Sequence() that supports passing value through multiple sequence of promises
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags> </tags>

@@ -1439,7 +1439,79 @@ namespace AOFL.Promises.V1.Core
 
             return returnPromise;
         }
-        
+
+        public IPromise<T1> Sequence(T1 initialValue, IEnumerable<Func<T1, IPromise<T1>>> promises)
+        {
+            IPromise<T1> returnPromise = this;
+
+            int promiseCount = promises.Count();
+
+            int index = 0;
+
+            IPromise<T1> firstPromise = promises.First()?.Invoke(initialValue);
+
+            IPromise<T1> currentPromise = null;
+
+            Action<T1> resolveCallback = null;
+            resolveCallback = delegate(T1 value)
+            {
+                index++;
+
+                if (index < promiseCount)
+                {
+                    currentPromise = promises.ElementAt(index)?.Invoke(value);
+                    currentPromise.Then(resolveCallback);
+                    currentPromise.Catch(delegate (Exception e)
+                    {
+                        if (returnPromise.State == PromiseState.Pending)
+                        {
+                            returnPromise.Fail(e);
+                        }
+                    });
+                }
+                else
+                {
+                    returnPromise.Resolve(value);
+                }
+            };
+
+            firstPromise.Then(resolveCallback);
+            firstPromise.Catch(delegate (Exception e)
+            {
+                if (returnPromise.State == PromiseState.Pending)
+                {
+                    returnPromise.Fail(e);
+                }
+            });
+
+            // Add request cancellation
+            returnPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
+            {
+                if (currentPromise.State == PromiseState.Pending)
+                {
+                    currentPromise.RequestCancel();
+                }
+            };
+
+            return returnPromise;
+        }
+
+        public IPromise<T1> Aggregate(IEnumerable<T1> source, Func<T1, T1, IPromise<T1>> func)
+        {
+            return Sequence(source.First(), Enumerable.Select<T1, Func<T1, IPromise<T1>>>(source.Skip(1), a => b => func(a, b)));
+        }
+
+        public IPromise<T1> Aggregate(IEnumerable<T1> source, T1 initialValue, Func<T1, T1, IPromise<T1>> func)
+        {
+            return Sequence(initialValue, Enumerable.Select<T1, Func<T1, IPromise<T1>>>(source, a => b => func(a, b)));
+        }
+
+        public IPromise<T1> Aggregate(IEnumerable<T1> source, T1 initialValue, Func<T1, T1, IPromise<T1>> func, Func<T1, IPromise<T1>> resultSelector)
+        {
+            return Sequence(initialValue, Enumerable.Select<T1, Func<T1, IPromise<T1>>>(source, a => b => func(a, b)))
+                .Chain(resultSelector);
+        }
+
         public new IPromise<T1> Progress(Action<float> progressHandler)
         {
             if (_progressHandlers == null)

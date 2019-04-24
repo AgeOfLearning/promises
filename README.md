@@ -223,6 +223,50 @@ promise.Sequence(new Func<IPromise>[]{
 });
 ```
 
+It is possible to pass value through a sequence of promises:
+
+```c#
+// Do complex math server-side
+IPromise<int> AsyncAdd(int a, int b)
+{
+    return _httpService.Send("http://add.com/" + a + "/" + b); // a+b
+}
+
+IPromise<int> AsyncMultiply(int a, int b)
+{
+    return _httpService.Send("http://multiply.com/" + a + "/" + b); // a*b
+}
+
+// ...
+
+IPromise<int> promise = new Promise<int>();
+
+promise.Sequence(0, new Func<int, IPromise<int>>[]
+{
+    (value) => AsyncAdd(value, 2), // 0 + 2 = 2
+    (value) => AsyncMultiply(value, 3), // 2 * 3 = 6 
+    (value) => AsyncAdd(value, 3) // 6 + 3 = 9
+})
+.Then(result => Console.Write(result)); // 9
+```
+
+## Aggregate() ##
+Similar to `Enumerable.Aggregate`, `IPromise.Aggregate` can be used to apply an asynchronous accumulator function over a sequence of values:
+
+
+```c#
+private IPromise<int> AsyncAdd(int a, int b)
+{
+    return _httpService.Send("http://add.com/" + a + "/" + b); // a+b
+}
+
+var values = new int[] { 1, 2, 3 };
+
+promise.Aggregate(values, (currentValue, next) => AsyncAdd(currentValue, next))
+    .Then(result => Console.Write(result)); // 6
+```
+
+
 ## Any() ##
 Any acts similar way to All, except it resolves when one of the promises gets resolved.
 ```c#
@@ -446,6 +490,11 @@ IPromise<GameObject> result = LoadBundle("Assets.bundle")
 
 
 # Changelog #
+- v1.7.0
+    - Added IPromise<T>.Aggregate() allowing to apply an asynchronous accumulator function over a sequence of values.
+    - Added IPromise<T>.Sequence() that supports passing value through multiple sequence of promises.
+- v1.6.1
+    - Fixed Sequence
 - v1.6.0
     - Added IPromise IPromise<T>.Chain(Func<T1> callback) method that allows you to convert a generic promise into a non-generic one using a callback
     - Added IPromise<T> IPromise.Then<T>(Func<T> callback) method that allows you to convert a non-generic promise into a generic one using a synchronous callback

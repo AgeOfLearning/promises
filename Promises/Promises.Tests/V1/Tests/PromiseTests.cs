@@ -2028,6 +2028,171 @@ namespace AOFL.Promises.Tests.V1.Tests
             IPromise promise2 = promise.Sequence(new Func<IPromise>[] { GetBoolResolvedPromise });
             Assert.AreEqual(promise, promise2);
         }
+
+        [TestMethod]
+        public void Promise_GenericSequence_AggregatesValue()
+        {
+            IPromise<int> promise = new Promise<int>();
+
+            var initialValue = 0;
+            
+            int result = 0;
+
+            promise.Sequence(initialValue, new Func<int, IPromise<int>>[]
+            {
+                (value) => AsyncAdd(value, 1),
+                (value) => AsyncAdd(value, 2),
+                (value) => AsyncAdd(value, 3)
+            })
+            .Then(resultingValue => result = resultingValue);
+            
+            Assert.AreEqual(6, result, "Incorrect result");
+        }
+
+        [TestMethod]
+        public void Promise_GenericSequence_AggregatesValue_WhenProcessingEnumerable()
+        {
+            IPromise<int> promise = new Promise<int>();
+
+            var values = new int[] { 1, 2, 3 };
+            IEnumerable<Func<int, IPromise<int>>> promiseFuncs = values.Select<int, Func<int, IPromise<int>>>(a => b => AsyncAdd(a, b));
+            
+            var initialValue = 0;
+
+            int result = 0;
+
+            promise.Sequence(initialValue, promiseFuncs)
+                .Then(resultingValue => result = resultingValue);
+            
+            Assert.AreEqual(6, result, "Incorrect result");
+        }
+
+        [TestMethod]
+        public void Promise_GenericSequence_AggregatesValue_DoesNotInvokeFuncMultipleTimes()
+        {
+            int numInvokedPromiseFunc = 0;
+
+            Func<int, int, IPromise<int>> func = delegate (int a, int b)
+            {
+                numInvokedPromiseFunc++;
+                return Promise<int>.Resolved(a + b);
+            };
+
+            IPromise<int> promise = new Promise<int>();
+
+            var values = new int[] { 1, 2, 3 };
+            IEnumerable<Func<int, IPromise<int>>> promiseFuncs = values.Select<int, Func<int, IPromise<int>>>(a => b => func(a, b));
+
+            var initialValue = 0;
+
+            int result = 0;
+
+            promise.Sequence(initialValue, promiseFuncs)
+                .Then(resultingValue => result = resultingValue);
+            
+            Assert.AreEqual(6, result, "Incorrect result");
+            Assert.AreEqual(3, numInvokedPromiseFunc, "Invoked promise func incorrect # of times");
+        }
+        #endregion
+
+        #region Promise.Aggregate
+        [TestMethod]
+        public void Promise_Aggregate_AggregatesValue()
+        {
+            IPromise<int> promise = new Promise<int>();
+
+            var values = new int[] { 1, 2, 3 };
+
+            int result = 0;
+
+            promise.Aggregate(values, (currentValue, next) => AsyncAdd(currentValue, next))
+                .Then(resultingValue => result = resultingValue);
+            
+            Assert.AreEqual(6, result, "Incorrect result");
+        }
+
+        [TestMethod]
+        public void Promise_Aggregate_AggregatesValue_DoesNotInvokeFuncMultipleTimes()
+        {
+            int numInvokedPromiseFunc = 0;
+
+            Func<int, int, IPromise<int>> func = delegate (int a, int b)
+            {
+                numInvokedPromiseFunc++;
+                return Promise<int>.Resolved(a + b);
+            };
+
+
+            IPromise<int> promise = new Promise<int>();
+            
+            var values = new int[] { 1, 2, 3 };
+
+            int result = 0;
+
+            promise.Aggregate(values, (currentValue, next) => func(currentValue, next))
+                .Then(resultingValue => result = resultingValue);
+            
+            Assert.AreEqual(6, result, "Incorrect result");
+            Assert.AreEqual(2, numInvokedPromiseFunc, "Invoked promise func incorrect # of times");
+        }
+
+        [TestMethod]
+        public void Promise_Aggregate_AggregatesValue_WithInitialValue()
+        {
+            IPromise<int> promise = new Promise<int>();
+            
+            var initialValue = 1;
+            var values = new int[] { 2, 3, 4 };
+
+            int result = 0;
+
+            promise.Aggregate(values, initialValue, (currentValue, next) => AsyncAdd(currentValue, next))
+                .Then(resultingValue => result = resultingValue);
+            
+            Assert.AreEqual(10, result, "Incorrect result");
+        }
+
+        [TestMethod]
+        public void Promise_Aggregate_AggregatesValue_WithInitialValue_DoesNotInvokeFuncMultipleTimes()
+        {
+            int numInvokedPromiseFunc = 0;
+
+            Func<int, int, IPromise<int>> func = delegate (int a, int b)
+            {
+                numInvokedPromiseFunc++;
+                return Promise<int>.Resolved(a + b);
+            };
+
+
+            IPromise<int> promise = new Promise<int>();
+
+            var initialValue = 1;
+            var values = new int[] { 2, 3, 4 };
+
+            int result = 0;
+
+            promise.Aggregate(values, initialValue, (currentValue, next) => func(currentValue, next))
+                .Then(resultingValue => result = resultingValue);
+            
+            Assert.AreEqual(10, result, "Incorrect result");
+            Assert.AreEqual(3, numInvokedPromiseFunc, "Invoked promise func incorrect # of times");
+        }
+        
+        [TestMethod]
+        public void Promise_Aggregate_AggregatesValue_WithResultSelector()
+        {
+            IPromise<int> promise = new Promise<int>();
+
+            var initialValue = 1;
+            var values = new int[] { 2, 3, 4 };
+
+            int result = 0;
+
+            promise.Aggregate(values, initialValue, (currentValue, next) => AsyncAdd(currentValue, next), AsyncSqr)
+                .Then(resultingValue => result = resultingValue);
+    
+            Assert.AreEqual(100, result, "Incorrect result");
+        }
         #endregion
 
         #region Promise.SetProgress
@@ -4086,6 +4251,16 @@ namespace AOFL.Promises.Tests.V1.Tests
             IPromise promise = new Promise();
             promise.Resolve();
             return promise;
+        }
+
+        private IPromise<int> AsyncAdd(int a, int b)
+        {
+            return Promise<int>.Resolved(a + b);
+        }
+
+        private IPromise<int> AsyncSqr(int value)
+        {
+            return Promise<int>.Resolved(value * value);
         }
         #endregion
     }
