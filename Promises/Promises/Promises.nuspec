@@ -14,8 +14,7 @@
     <description>$description$</description>
     <!--*-->
     <releaseNotes>
-      - Added IPromise.Aggregate() allowing to apply an asynchronous accumulator function over a sequence of values.
-      - Added IPromise.Sequence() that supports passing value through multiple sequence of promises
+      - Fixed IPromiseBase.Chain StackOverflowException
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags> </tags>
