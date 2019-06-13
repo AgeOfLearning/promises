@@ -552,6 +552,101 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual(requestedToCancelFirstPromise, false, "requested to cancel first promise when it shouldn't have");
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
         }
+
+        [TestMethod]
+        public void Promise_Chain_InvokesNextPromise_WhenPromiseIsResolved_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+
+            var promise = GetPromise();
+
+            promise.Chain(() =>
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                return secondPromise;
+            });
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+        }
+
+        [TestMethod]
+        public void Promise_Chain_InvokesNextPromise_WhenFirstPromiseResolved_WithOneProperty_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string p1 = null;
+
+            var promise = GetPromise();
+
+            promise.Chain(delegate (string property1)
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                p1 = property1;
+                return secondPromise;
+            }, "abc");
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("abc", p1, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_Chain_InvokesNextPromise_WhenFirstPromiseResolved_WithTwoProperties_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string p1 = null;
+            string p2 = null;
+
+            var promise = GetPromise();
+
+            promise.Chain(delegate (string property1, string property2)
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                p1 = property1;
+                p2 = property2;
+                return secondPromise;
+            }, "abc", "def");
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("abc", p1, "Did not propagate property");
+            Assert.AreEqual("def", p2, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_Chain_InvokesNextPromise_WhenFirstPromiseResolved_WithThreeProperties_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string p1 = null;
+            string p2 = null;
+            string p3 = null;
+
+            var promise = GetPromise();
+
+            promise.Chain(delegate (string property1, string property2, string property3)
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                p1 = property1;
+                p2 = property2;
+                p3 = property3;
+                return secondPromise;
+            }, "abc", "def", "ghi");
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("abc", p1, "Did not propagate property");
+            Assert.AreEqual("def", p2, "Did not propagate property");
+            Assert.AreEqual("ghi", p3, "Did not propagate property");
+        }
+
         #endregion
 
         #region Promise.Chain<T>
@@ -711,8 +806,101 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual(requestedToCancelFirstPromise, false, "requested to cancel first promise when it shouldn't have");
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
         }
-        #endregion
 
+        [TestMethod]
+        public void Promise_GenericChain_InvokesNextPromise_WhenFirstPromiseResolved_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+
+            var promise = GetPromise();
+
+            promise.Chain(() =>
+            {
+                var secondPromise = GetBoolResolvedPromiseBase();
+                didPropagate = true;
+                return secondPromise;
+            });
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+        }
+
+        [TestMethod]
+        public void Promise_GenericChain_InvokesNextPromise_WhenFirstPromiseResolved_WithOneProperty_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string p1 = null;
+
+            var promise = GetPromise();
+
+            promise.Chain(delegate (string property1)
+            {
+                var secondPromise = GetBoolResolvedPromiseBase();
+                didPropagate = true;
+                p1 = property1;
+                return secondPromise;
+            }, "abc");
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("abc", p1, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_GenericChain_InvokesNextPromise_WhenFirstPromiseResolved_WithTwoProperties_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string p1 = null;
+            string p2 = null;
+
+            var promise = GetPromise();
+
+            promise.Chain(delegate (string property1, string property2)
+            {
+                var secondPromise = GetBoolResolvedPromiseBase();
+                didPropagate = true;
+                p1 = property1;
+                p2 = property2;
+                return secondPromise;
+            }, "abc", "def");
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("abc", p1, "Did not propagate property");
+            Assert.AreEqual("def", p2, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_GenericChain_InvokesNextPromise_WhenFirstPromiseResolved_WithThreeProperties_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string p1 = null;
+            string p2 = null;
+            string p3 = null;
+
+            var promise = GetPromise();
+
+            promise.Chain(delegate (string property1, string property2, string property3)
+            {
+                var secondPromise = GetBoolResolvedPromiseBase();
+                didPropagate = true;
+                p1 = property1;
+                p2 = property2;
+                p3 = property3;
+                return secondPromise;
+            }, "abc", "def", "ghi");
+
+            promise.Resolve();
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("abc", p1, "Did not propagate property");
+            Assert.AreEqual("def", p2, "Did not propagate property");
+            Assert.AreEqual("ghi", p3, "Did not propagate property");
+        }
+        #endregion
         #endregion
 
         #region Promise.Done
@@ -3024,6 +3212,101 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
         }
 
+        [TestMethod]
+        public void GenericPromise_NonGenericChain_InvokesChainedMethod_WhenFirstPromiseResolved_WhenCallbackReturnsPromiseBased()
+        {
+            bool didPropagate = false;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain((boolValue) =>
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                return secondPromise;
+            });
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+        }
+
+        [TestMethod]
+        public void GenericPromise_NonGenericChain_InvokesChainedMethod_WhenFirstPromiseResolved_WithOneProperty_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string property1 = null;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain(delegate (bool boolValue, string p1)
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                property1 = p1;
+                return secondPromise;
+            }, "property1");
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("property1", property1, "First property did not propagate");
+        }
+
+        [TestMethod]
+        public void GenericPromise_NonGenericChain_InvokesChainedMethod_WhenFirstPromiseResolved_WithTwoProperties_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string property1 = null;
+            string property2 = null;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain(delegate (bool boolValue, string p1, string p2)
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                property1 = p1;
+                property2 = p2;
+                return secondPromise;
+            }, "property1", "property2");
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("property1", property1, "First property did not propagate");
+            Assert.AreEqual("property2", property2, "Second property did not propagate");
+        }
+
+        [TestMethod]
+        public void GenericPromise_NonGenericChain_InvokesChainedMethod_WhenFirstPromiseResolved_WithThreeProperties_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+            string property1 = null;
+            string property2 = null;
+            string property3 = null;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain(delegate (bool boolValue, string p1, string p2, string p3)
+            {
+                var secondPromise = GetResolvedPromiseBase();
+                didPropagate = true;
+                property1 = p1;
+                property2 = p2;
+                property3 = p3;
+                return secondPromise;
+            }, "property1", "property2", "property3");
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+            Assert.AreEqual("property1", property1, "First property did not propagate");
+            Assert.AreEqual("property2", property2, "Second property did not propagate");
+            Assert.AreEqual("property3", property3, "Third property did not propagate");
+        }
+
+
         #endregion
 
         #region Promise<T>.Chain<T2>
@@ -3107,6 +3390,25 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreEqual(requestedToCancelFirstPromise, false, "requested to cancel first promise when it shouldn't have");
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
+        }
+
+        [TestMethod]
+        public void GenericPromise_GenericChain_InvokesChainedMethod_WhenFirstPromiseResolved_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain(() =>
+            {
+                var secondPromise = GetIntResolvedPromiseBase();
+                didPropagate = true;
+                return secondPromise;
+            });
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
         }
         #endregion
 
@@ -3192,6 +3494,25 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual(requestedToCancelFirstPromise, false, "requested to cancel first promise when it shouldn't have");
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
         }
+
+        [TestMethod]
+        public void GenericPromise_GenericChainOneProperty_InvokesChainedMethod_WhenFirstPromiseResolved_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain(delegate (bool value, string property1)
+            {
+                var secondPromise = GetIntResolvedPromiseBase();
+                didPropagate = true;
+                return secondPromise;
+            }, "abc");
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
+        }
         #endregion
 
         #region Promise<T>.Chain<T2, P1, P2>
@@ -3275,6 +3596,25 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreEqual(requestedToCancelFirstPromise, false, "requested to cancel first promise when it shouldn't have");
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
+        }
+
+        [TestMethod]
+        public void GenericPromise_GenericChainTwoProperties_InvokesChainedMethod_WhenFirstPromiseResolved_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain(delegate (bool value, string property1, float property2)
+            {
+                var secondPromise = GetIntResolvedPromiseBase();
+                didPropagate = true;
+                return secondPromise;
+            }, "abc", 0.1f);
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
         }
         #endregion
 
@@ -3360,6 +3700,25 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreEqual(requestedToCancelFirstPromise, false, "requested to cancel first promise when it shouldn't have");
             Assert.AreEqual(requestedToCancelSecondPromise, true, "did not request to cancel second promise");
+        }
+        
+        [TestMethod]
+        public void GenericPromise_GenericChainThreeProperties_InvokesChainedMethod_WhenFirstPromiseResolved_WhenCallbackReturnsPromiseBase()
+        {
+            bool didPropagate = false;
+
+            var promise = GetBoolPromise();
+
+            promise.Chain(delegate (bool value, string property1, float property2, double property3)
+            {
+                var secondPromise = GetIntResolvedPromiseBase();
+                didPropagate = true;
+                return secondPromise;
+            }, "abc", 0.1f, 0.2d);
+
+            promise.Resolve(true);
+
+            Assert.IsTrue(didPropagate, "did not propagate");
         }
         #endregion
 
@@ -4248,9 +4607,27 @@ namespace AOFL.Promises.Tests.V1.Tests
 
         private IPromise GetResolvedPromise()
         {
-            IPromise promise = new Promise();
-            promise.Resolve();
-            return promise;
+            return Promise.Resolved();
+        }
+
+        private IPromiseBase GetResolvedPromiseBase()
+        {
+            return Promise.Resolved();
+        }
+
+        private IPromiseBase<bool> GetBoolResolvedPromiseBase()
+        {
+            return Promise<bool>.Resolved(true);
+        }
+
+        private IPromiseBase<int> GetIntResolvedPromiseBase()
+        {
+            return Promise<int>.Resolved(1);
+        }
+
+        private IPromiseBase<bool> GetBoolPromiseBase()
+        {
+            return new Promise<bool>();
         }
 
         private IPromise<int> AsyncAdd(int a, int b)

@@ -10,9 +10,7 @@ namespace AOFL.Promises.V1.Core
 {
     public class Promise : IPromise
     {
-        public string Name { get; set; }
-        public PromiseState State { get; protected set; }
-
+        #region Public Static Events
         public static event PromiseStateChangedHandler PromiseStateChanged
         {
             add { _promiseStateChanged += value; }
@@ -24,12 +22,26 @@ namespace AOFL.Promises.V1.Core
             add { _uncaughtExceptionThrown += value; }
             remove { _uncaughtExceptionThrown -= value; }
         }
+        #endregion
+
+        #region Public Properties
+        /// <summary>
+        /// Name of the Promise
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// State of the Promise
+        /// </summary>
+        public PromiseState State { get; protected set; }
 
         /// <summary>
         /// Represents an error that promise has failed with
         /// </summary>
         public Exception Error { get; protected set; }
+        #endregion
 
+        #region Protected Fields
         /// <summary>
         /// Pure resolve handlers are called whenever promise is resolved
         /// </summary>
@@ -64,9 +76,13 @@ namespace AOFL.Promises.V1.Core
         /// Will be invoked on Initialized, Resolved, and Failed.
         /// </summary>
         protected static event PromiseStateChangedHandler _promiseStateChanged;
+        #endregion
 
+        #region Public Events
         public event PromiseCancelRequestedHandler CancelRequested;
-        
+        #endregion
+
+        #region Constructors
         public Promise(string name) : this()
         {
             Name = name;
@@ -76,7 +92,9 @@ namespace AOFL.Promises.V1.Core
         {
             NotifyTransitionStateChanged(PromiseTransistionState.Initialized);
         }
+        #endregion
 
+        #region Static Methods
         public static Promise Resolved()
         {
             Promise promise = new Promise();
@@ -93,7 +111,9 @@ namespace AOFL.Promises.V1.Core
 
             return promise;
         }
+        #endregion
 
+        #region Fail
         public void Fail(Exception exception)
         {
             if(State == PromiseState.Failed)
@@ -129,7 +149,9 @@ namespace AOFL.Promises.V1.Core
 
             NotifyTransitionStateChanged(PromiseTransistionState.FailedAfterCallbacks);
         }
+        #endregion
 
+        #region Done
         public void Done()
         {
             AddFailHandler(delegate(Exception exception)
@@ -156,14 +178,18 @@ namespace AOFL.Promises.V1.Core
             Then(callback)
                 .Done();
         }
+        #endregion
 
+        #region Finally
         public IPromise Finally(Action callback)
         {
             AddFinallyHandler(callback);
 
             return this;
         }
+        #endregion
 
+        #region Resolve
         public void Resolve()
         {
             if (State == PromiseState.Failed)
@@ -195,7 +221,9 @@ namespace AOFL.Promises.V1.Core
 
             NotifyTransitionStateChanged(PromiseTransistionState.ResolvedAfterCallbacks);
         }
+        #endregion
 
+        #region Then
         public IPromise Then(Action callback)
         {
             AddResolveHandler(callback);
@@ -294,81 +322,18 @@ namespace AOFL.Promises.V1.Core
             });
         }
 
-        private IEnumerable<Action<Exception>> GetAssignableFailHandlers(Type exceptionType)
+        public IPromise Then(Func<IPromise> callback)
         {
-            return from catchHandler in _catchHandlers
-                    where catchHandler.Type.IsAssignableFrom(exceptionType)
-                    select catchHandler.Callback;
-        }
-       
-        private void AddResolveHandler(Action resolveCallback)
-        {
-            if (resolveCallback == null)
-            {
-                throw new NullReferenceException("Then() callback can not be null");
-            }
-
-            switch (State)
-            {
-                case PromiseState.Failed:
-                    if (resolveCallback != null)
-                    {
-                        _pureResolveHandlers.Add(resolveCallback);
-                    }
-                    break;
-                case PromiseState.Pending:
-                    if (resolveCallback != null)
-                    {
-                        _pureResolveHandlers.Add(resolveCallback);
-                    }
-                    break;
-                case PromiseState.Resolved:
-                    resolveCallback?.Invoke();
-                    break;
-            }
+            return Chain(callback);
         }
 
-        private void AddFailHandler<TException>(Action<TException> failCallback) where TException : Exception
+        public IPromise<T> Then<T>(Func<IPromise<T>> callback)
         {
-            switch (State)
-            {
-                case PromiseState.Pending:
-                    if (failCallback != null)
-                    {
-                        _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
-                        {
-                            failCallback((TException)e);
-                        }));
-                    }
-                    break;
-                case PromiseState.Failed:
-                    if (typeof(TException).IsAssignableFrom(Error.GetType()))
-                    {
-                        failCallback?.Invoke((TException)Error);
-                    }
-                    break;
-            }
+            return Chain<T>(callback);
         }
+        #endregion
         
-        protected void AddFinallyHandler(Action callback)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Finally() callback can not be null");
-            }
-
-            switch (State)
-            {
-                case PromiseState.Pending:
-                    _finallyHandlers.Add(callback);
-                    break;
-                case PromiseState.Resolved:
-                case PromiseState.Failed:
-                    callback?.Invoke();
-                    break;
-            }
-        }
-
+        #region Catch
         public IPromise Catch(Action<Exception> callback)
         {
             AddFailHandler(callback);
@@ -383,7 +348,9 @@ namespace AOFL.Promises.V1.Core
 
             return this;
         }
+        #endregion
 
+        #region Sequence
         public IPromise Sequence(IEnumerable<Func<IPromise>> promises)
         {
             List<IPromise> actingPromises = new List<IPromise>();
@@ -446,7 +413,9 @@ namespace AOFL.Promises.V1.Core
 
             return returnPromise;
         }
+        #endregion
 
+        #region All
         public IPromise All(IEnumerable<IPromise> promises)
         {
             IPromise returnPromise = this;
@@ -494,7 +463,9 @@ namespace AOFL.Promises.V1.Core
 
             return returnPromise;
         }
+        #endregion
 
+        #region Any
         public IPromise Any(IEnumerable<IPromise> promises)
         {
             IPromise returnPromise = this;
@@ -541,24 +512,85 @@ namespace AOFL.Promises.V1.Core
 
             return returnPromise;
         }
+        #endregion
 
-        public IPromise Then(Func<IPromise> callback)
-        {
-            return Chain(callback);
-        }
-
-        public IPromise<T> Then<T>(Func<IPromise<T>> callback)
-        {
-            return Chain<T>(callback);
-        }
-
+        #region Chain
         public IPromise Chain(Func<IPromise> callback)
         {
+            return ChainInternal(delegate
+            {
+                return callback();
+            });
+        }
+
+        public IPromise Chain<P1>(Func<P1, IPromise> callback, P1 property1)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
+        }
+
+        public IPromise Chain<P1, P2>(Func<P1, P2, IPromise> callback, P1 property1, P2 property2)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
+        }
+
+        public IPromise Chain<P1, P2, P3>(Func<P1, P2, P3, IPromise> callback, P1 property1, P2 property2, P3 property3)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
+        }
+
+        public IPromise<T> Chain<T>(Func<IPromise<T>> callback)
+        {
+            return ChainInternal(delegate
+            {
+                return callback();
+            });
+        }
+
+        public IPromise<T> Chain<T, P1>(Func<P1, IPromise<T>> callback, P1 property1)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
+        }
+
+        public IPromise<T> Chain<T, P1, P2>(Func<P1, P2, IPromise<T>> callback, P1 property1, P2 property2)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
+        }
+
+        public IPromise<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IPromise<T>> callback, P1 property1, P2 property2, P3 property3)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
+        }
+
+        private IPromise ChainInternal(Func<IPromiseBase> callback)
+        {
+            if (callback == null)
+            {
+                throw new NullReferenceException("Chain() callback can not be null");
+            }
+
             IPromise promise = new Promise();
 
             Action resolveHandler = delegate
             {
-                IPromise chainedPromise = callback();
+                IPromiseBase chainedPromise = callback();
 
                 chainedPromise.Catch(promise.Fail).Then((Action)promise.Resolve);
 
@@ -585,52 +617,18 @@ namespace AOFL.Promises.V1.Core
             return promise;
         }
 
-        public IPromise Chain<P1>(Func<P1, IPromise> callback, P1 property1)
+        public IPromise<T> ChainInternal<T>(Func<IPromiseBase<T>> callback)
         {
             if (callback == null)
             {
                 throw new NullReferenceException("Chain() callback can not be null");
             }
 
-            return Chain(delegate
-            {
-                return callback(property1);
-            });
-        }
-
-        public IPromise Chain<P1, P2>(Func<P1, P2, IPromise> callback, P1 property1, P2 property2)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Chain() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2);
-            });
-        }
-
-        public IPromise Chain<P1, P2, P3>(Func<P1, P2, P3, IPromise> callback, P1 property1, P2 property2, P3 property3)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Chain() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2, property3);
-            });
-        }
-
-        public IPromise<T> Chain<T>(Func<IPromise<T>> callback)
-        {
             IPromise<T> promise = new Promise<T>();
 
             Action resolveHandler = delegate
             {
-                IPromise<T> chainedPromise = callback();
+                IPromiseBase<T> chainedPromise = callback();
 
                 chainedPromise.Catch(promise.Fail).Then(promise.Resolve);
 
@@ -645,7 +643,7 @@ namespace AOFL.Promises.V1.Core
 
             AddResolveHandler(resolveHandler);
             AddFailHandler<Exception>(promise.Fail);
-            
+
             promise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
             {
                 if (State == PromiseState.Pending)
@@ -656,46 +654,9 @@ namespace AOFL.Promises.V1.Core
 
             return promise;
         }
-        
-        public IPromise<T> Chain<T, P1>(Func<P1, IPromise<T>> callback, P1 property1)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Then() callback can not be null");
-            }
+        #endregion
 
-            return Chain(delegate
-            {
-                return callback(property1);
-            });
-        }
-
-        public IPromise<T> Chain<T, P1, P2>(Func<P1, P2, IPromise<T>> callback, P1 property1, P2 property2)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Then() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2);
-            });
-        }
-
-        public IPromise<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IPromise<T>> callback, P1 property1, P2 property2, P3 property3)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Then() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2, property3);
-            });
-        }
-
+        #region RequestCancel
         public void RequestCancel()
         {
             if (State == PromiseState.Pending)
@@ -703,7 +664,9 @@ namespace AOFL.Promises.V1.Core
                 CancelRequested?.Invoke(this, new PromiseCancelRequestedEventArgs());
             }
         }
+        #endregion
 
+        #region Progress Reporting
         public IPromise Progress(Action<float> progressHandler)
         {
             if(_progressHandlers == null)
@@ -738,6 +701,85 @@ namespace AOFL.Promises.V1.Core
         {
             return _progress;
         }
+        #endregion
+
+        #region Private Methods
+        private IEnumerable<Action<Exception>> GetAssignableFailHandlers(Type exceptionType)
+        {
+            return from catchHandler in _catchHandlers
+                   where catchHandler.Type.IsAssignableFrom(exceptionType)
+                   select catchHandler.Callback;
+        }
+
+        private void AddResolveHandler(Action resolveCallback)
+        {
+            if (resolveCallback == null)
+            {
+                throw new NullReferenceException("Then() callback can not be null");
+            }
+
+            switch (State)
+            {
+                case PromiseState.Failed:
+                    if (resolveCallback != null)
+                    {
+                        _pureResolveHandlers.Add(resolveCallback);
+                    }
+                    break;
+                case PromiseState.Pending:
+                    if (resolveCallback != null)
+                    {
+                        _pureResolveHandlers.Add(resolveCallback);
+                    }
+                    break;
+                case PromiseState.Resolved:
+                    resolveCallback?.Invoke();
+                    break;
+            }
+        }
+
+        private void AddFailHandler<TException>(Action<TException> failCallback) where TException : Exception
+        {
+            switch (State)
+            {
+                case PromiseState.Pending:
+                    if (failCallback != null)
+                    {
+                        _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
+                        {
+                            failCallback((TException)e);
+                        }));
+                    }
+                    break;
+                case PromiseState.Failed:
+                    if (typeof(TException).IsAssignableFrom(Error.GetType()))
+                    {
+                        failCallback?.Invoke((TException)Error);
+                    }
+                    break;
+            }
+        }
+        #endregion
+
+        #region Protected Methods
+        protected void AddFinallyHandler(Action callback)
+        {
+            if (callback == null)
+            {
+                throw new NullReferenceException("Finally() callback can not be null");
+            }
+
+            switch (State)
+            {
+                case PromiseState.Pending:
+                    _finallyHandlers.Add(callback);
+                    break;
+                case PromiseState.Resolved:
+                case PromiseState.Failed:
+                    callback?.Invoke();
+                    break;
+            }
+        }
 
         protected class PromiseCatchHandler
         {
@@ -764,6 +806,7 @@ namespace AOFL.Promises.V1.Core
             _progressHandlers.Clear();
             CancelRequested = null;
         }
+        #endregion
 
         #region IPromiseBase Implementation
 
@@ -825,41 +868,60 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromiseBase Chain(Func<IPromiseBase> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
+
         public IPromiseBase Chain<P1>(Func<P1, IPromiseBase> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
         }
 
         public IPromiseBase Chain<P1, P2>(Func<P1, P2, IPromiseBase> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
         }
 
         public IPromiseBase Chain<P1, P2, P3>(Func<P1, P2, P3, IPromiseBase> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
         }
 
         public IPromiseBase<T> Chain<T>(Func<IPromiseBase<T>> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
 
         public IPromiseBase<T> Chain<T, P1>(Func<P1, IPromiseBase<T>> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
         }
 
         public IPromiseBase<T> Chain<T, P1, P2>(Func<P1, P2, IPromiseBase<T>> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
         }
 
         public IPromiseBase<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IPromiseBase<T>> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
         }
         #endregion
 
@@ -881,10 +943,7 @@ namespace AOFL.Promises.V1.Core
 
     public class Promise<T1> : Promise, IPromise<T1>, IDisposable
     {
-        private List<Action<T1>> _resolveHandlers = new List<Action<T1>>();
-
-        private T1 _resolvedValue;
-
+        #region Public Properties
         public T1 Value
         {
             get
@@ -892,7 +951,15 @@ namespace AOFL.Promises.V1.Core
                 return _resolvedValue;
             }
         }
+        #endregion
 
+        #region Private Fields
+        private List<Action<T1>> _resolveHandlers = new List<Action<T1>>();
+
+        private T1 _resolvedValue;
+        #endregion
+
+        #region Constructors
         public Promise(string name) : this()
         {
             Name = name;
@@ -902,7 +969,9 @@ namespace AOFL.Promises.V1.Core
         {
             NotifyTransitionStateChanged(PromiseTransistionState.Initialized);
         }
+        #endregion
 
+        #region Static Methods
         public static Promise<T1> Resolved(T1 value)
         {
             Promise<T1> promise = new Promise<T1>();
@@ -911,7 +980,7 @@ namespace AOFL.Promises.V1.Core
 
             return promise;
         }
-
+        
         public static new Promise<T1> Failed(Exception e)
         {
             Promise<T1> promise = new Promise<T1>();
@@ -920,7 +989,9 @@ namespace AOFL.Promises.V1.Core
 
             return promise;
         }
+        #endregion
 
+        #region Dispose
         public void Dispose()
         {
             Dispose(true);
@@ -933,20 +1004,26 @@ namespace AOFL.Promises.V1.Core
                 _resolvedValue = default(T1);
             }
         }
+        #endregion
 
+        #region Done
         public void Done(Action<T1> callback)
         {
             Then(callback)
                 .Done();
         }
+        #endregion
 
+        #region Finally
         public new IPromise<T1> Finally(Action callback)
         {
             AddFinallyHandler(callback);
 
             return this;
         }
+        #endregion
 
+        #region Resolve
         [Obsolete("Invalid use of Resolve() on a generic Promise<>. Use Promise.Resolve<T>(T value).", true)]
         public new void Resolve()
         {
@@ -984,6 +1061,7 @@ namespace AOFL.Promises.V1.Core
 
             NotifyTransitionStateChanged(PromiseTransistionState.ResolvedAfterCallbacks);
         }
+        #endregion
 
         #region Then
         public IPromise<T1> Then(Action<T1> callback)
@@ -1120,138 +1198,81 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromise Chain(Func<T1, IPromise> callback)
         {
-            IPromise resultPromise = new Promise();
-
-            Action<T1> resolveCallback = delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                // Resolves and Fails through the resultPromise...
-                IPromise chainedPromise = callback(value);
-
-                chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
-
-                resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-                {
-                    if (chainedPromise.State == PromiseState.Pending)
-                    {
-                        chainedPromise.RequestCancel();
-                    }
-                };
-            };
-
-            AddResolveHandler(resolveCallback);
-            AddExceptionHandler<Exception>(resultPromise.Fail);
-
-            resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-            {
-                if (State == PromiseState.Pending)
-                {
-                    RequestCancel();
-                }
-            };
-
-            return resultPromise;
+                return callback(value);
+            });
         }
 
         public IPromise Chain<P1>(Func<T1, P1, IPromise> callback, P1 property1)
         {
-            return Chain(delegate(T1 value) 
+            return ChainInternal(delegate(T1 value) 
             {
-                return callback.Invoke(value, property1);
+                return callback(value, property1);
             });
         }
 
         public IPromise Chain<P1, P2>(Func<T1, P1, P2, IPromise> callback, P1 property1, P2 property2)
         {
-            return Chain(delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                return callback.Invoke(value, property1, property2);
+                return callback(value, property1, property2);
             });
         }
 
         public IPromise Chain<P1, P2, P3>(Func<T1, P1, P2, P3, IPromise> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                return callback.Invoke(value, property1, property2, property3);
+                return callback(value, property1, property2, property3);
             });
         }
 
         public IPromise<T2> Chain<T2>(Func<T1, IPromise<T2>> callback)
         {
-            IPromise<T2> resultPromise = new Promise<T2>();
-
-            Action<T1> resolveCallback = delegate (T1 value)
+            return ChainInternal(delegate(T1 value) 
             {
-                // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value);
-
-                chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
-                
-                resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-                {
-                    if (chainedPromise.State == PromiseState.Pending)
-                    {
-                        chainedPromise.RequestCancel();
-                    }
-                };
-            };
-
-            AddResolveHandler(resolveCallback);
-            AddExceptionHandler<Exception>(resultPromise.Fail);
-
-            resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-            {
-                if (State == PromiseState.Pending)
-                {
-                    RequestCancel();
-                }
-            };
-
-            return resultPromise;
+                return callback(value);
+            });
         }
 
         public IPromise<T2> Chain<T2, P1>(Func<T1, P1, IPromise<T2>> callback, P1 property1)
         {
-            IPromise<T2> resultPromise = new Promise<T2>();
-
-            Action<T1> resolveCallback = delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value, property1);
-
-                chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
-                
-                resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-                {
-                    if (chainedPromise.State == PromiseState.Pending)
-                    {
-                        chainedPromise.RequestCancel();
-                    }
-                };
-            };
-
-            AddResolveHandler(resolveCallback);
-            AddExceptionHandler<Exception>(resultPromise.Fail);
-
-            resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-            {
-                if (State == PromiseState.Pending)
-                {
-                    RequestCancel();
-                }
-            };
-
-            return resultPromise;
+                return callback(value, property1);
+            });
         }
 
         public IPromise<T2> Chain<T2, P1, P2>(Func<T1, P1, P2, IPromise<T2>> callback, P1 property1, P2 property2)
         {
-            IPromise<T2> resultPromise = new Promise<T2>();
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2);
+            });
+        }
+
+        public IPromise<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IPromise<T2>> callback, P1 property1, P2 property2, P3 property3)
+        {
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2, property3);
+            });
+        }
+
+        public IPromise ChainInternal(Func<T1, IPromiseBase> callback)
+        {
+            if (callback == null)
+            {
+                throw new NullReferenceException("Chain() callback can not be null");
+            }
+
+            IPromise resultPromise = new Promise();
 
             Action<T1> resolveCallback = delegate (T1 value)
             {
-                // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value, property1, property2);
+                // Resolves and Fails through the resultPromise...
+                IPromiseBase chainedPromise = callback(value);
 
                 chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
 
@@ -1277,15 +1298,20 @@ namespace AOFL.Promises.V1.Core
 
             return resultPromise;
         }
-
-        public IPromise<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IPromise<T2>> callback, P1 property1, P2 property2, P3 property3)
+        
+        public IPromise<T2> ChainInternal<T2>(Func<T1, IPromiseBase<T2>> callback)
         {
+            if (callback == null)
+            {
+                throw new NullReferenceException("Chain() callback can not be null");
+            }
+
             IPromise<T2> resultPromise = new Promise<T2>();
 
             Action<T1> resolveCallback = delegate (T1 value)
             {
                 // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value, property1, property2, property3);
+                IPromiseBase<T2> chainedPromise = callback(value);
 
                 chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
 
@@ -1313,7 +1339,7 @@ namespace AOFL.Promises.V1.Core
         }
         #endregion
 
-
+        #region Private Methods
         private void AddResolveHandler(Action<T1> resolveCallback)
         {
             switch (State)
@@ -1358,7 +1384,9 @@ namespace AOFL.Promises.V1.Core
                     break;
             }
         }
-        
+        #endregion
+
+        #region Catch
         public new IPromise<T1> Catch(Action<Exception> callback)
         {
             AddExceptionHandler(callback);
@@ -1373,7 +1401,9 @@ namespace AOFL.Promises.V1.Core
 
             return this;
         }
+        #endregion
 
+        #region Sequence
         public new IPromise<IEnumerable<IPromise>> Sequence(IEnumerable<Func<IPromise>> promises)
         {
             IPromise<IEnumerable<IPromise>> returnPromise;
@@ -1495,7 +1525,9 @@ namespace AOFL.Promises.V1.Core
 
             return returnPromise;
         }
+        #endregion
 
+        #region Aggregate
         public IPromise<T1> Aggregate(IEnumerable<T1> source, Func<T1, T1, IPromise<T1>> func)
         {
             return Sequence(source.First(), Enumerable.Select<T1, Func<T1, IPromise<T1>>>(source.Skip(1), a => b => func(a, b)));
@@ -1511,7 +1543,9 @@ namespace AOFL.Promises.V1.Core
             return Sequence(initialValue, Enumerable.Select<T1, Func<T1, IPromise<T1>>>(source, a => b => func(a, b)))
                 .Chain(resultSelector);
         }
+        #endregion
 
+        #region Progress
         public new IPromise<T1> Progress(Action<float> progressHandler)
         {
             if (_progressHandlers == null)
@@ -1523,12 +1557,15 @@ namespace AOFL.Promises.V1.Core
 
             return this;
         }
+        #endregion
 
+        #region Protected Methods
         protected override void ClearPromiseHandlers()
         {
             base.ClearPromiseHandlers();
             _resolveHandlers.Clear();
         }
+        #endregion
 
         #region IPromiseBase Implementation
         #region Then
@@ -1576,42 +1613,60 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromiseBase Chain(Func<T1, IPromiseBase> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
 
         public IPromiseBase Chain<P1>(Func<T1, P1, IPromiseBase> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1);
+            });
         }
 
         public IPromiseBase Chain<P1, P2>(Func<T1, P1, P2, IPromiseBase> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2);
+            });
         }
 
         public IPromiseBase Chain<P1, P2, P3>(Func<T1, P1, P2, P3, IPromiseBase> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2, property3);
+            });
         }
 
         public IPromiseBase<T2> Chain<T2>(Func<T1, IPromiseBase<T2>> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
 
         public IPromiseBase<T2> Chain<T2, P1>(Func<T1, P1, IPromiseBase<T2>> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1);
+            });
         }
 
         public IPromiseBase<T2> Chain<T2, P1, P2>(Func<T1, P1, P2, IPromiseBase<T2>> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2);
+            });
         }
 
         public IPromiseBase<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IPromiseBase<T2>> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2, property3);
+            });
         }
         #endregion
 
