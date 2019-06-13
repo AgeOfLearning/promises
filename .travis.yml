@@ -12,4 +12,5 @@ install:
   - nuget setapikey $NUGET_API_KEY -Source https://api.nuget.org/v3/index.json 
 script: 
   - ./Scripts/test.sh
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then ./Scripts/deploy.sh; fi
+  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+  - if [ "$BRANCH" = "master" ]; then ./Scripts/deploy.sh; fi
