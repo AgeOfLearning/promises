@@ -517,11 +517,80 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromise Chain(Func<IPromise> callback)
         {
+            return ChainInternal(delegate
+            {
+                return callback();
+            });
+        }
+
+        public IPromise Chain<P1>(Func<P1, IPromise> callback, P1 property1)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
+        }
+
+        public IPromise Chain<P1, P2>(Func<P1, P2, IPromise> callback, P1 property1, P2 property2)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
+        }
+
+        public IPromise Chain<P1, P2, P3>(Func<P1, P2, P3, IPromise> callback, P1 property1, P2 property2, P3 property3)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
+        }
+
+        public IPromise<T> Chain<T>(Func<IPromise<T>> callback)
+        {
+            return ChainInternal(delegate
+            {
+                return callback();
+            });
+        }
+
+        public IPromise<T> Chain<T, P1>(Func<P1, IPromise<T>> callback, P1 property1)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
+        }
+
+        public IPromise<T> Chain<T, P1, P2>(Func<P1, P2, IPromise<T>> callback, P1 property1, P2 property2)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
+        }
+
+        public IPromise<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IPromise<T>> callback, P1 property1, P2 property2, P3 property3)
+        {
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
+        }
+
+        private IPromise ChainInternal(Func<IPromiseBase> callback)
+        {
+            if (callback == null)
+            {
+                throw new NullReferenceException("Chain() callback can not be null");
+            }
+
             IPromise promise = new Promise();
 
             Action resolveHandler = delegate
             {
-                IPromise chainedPromise = callback();
+                IPromiseBase chainedPromise = callback();
 
                 chainedPromise.Catch(promise.Fail).Then((Action)promise.Resolve);
 
@@ -548,52 +617,18 @@ namespace AOFL.Promises.V1.Core
             return promise;
         }
 
-        public IPromise Chain<P1>(Func<P1, IPromise> callback, P1 property1)
+        public IPromise<T> ChainInternal<T>(Func<IPromiseBase<T>> callback)
         {
             if (callback == null)
             {
                 throw new NullReferenceException("Chain() callback can not be null");
             }
 
-            return Chain(delegate
-            {
-                return callback(property1);
-            });
-        }
-
-        public IPromise Chain<P1, P2>(Func<P1, P2, IPromise> callback, P1 property1, P2 property2)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Chain() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2);
-            });
-        }
-
-        public IPromise Chain<P1, P2, P3>(Func<P1, P2, P3, IPromise> callback, P1 property1, P2 property2, P3 property3)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Chain() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2, property3);
-            });
-        }
-
-        public IPromise<T> Chain<T>(Func<IPromise<T>> callback)
-        {
             IPromise<T> promise = new Promise<T>();
 
             Action resolveHandler = delegate
             {
-                IPromise<T> chainedPromise = callback();
+                IPromiseBase<T> chainedPromise = callback();
 
                 chainedPromise.Catch(promise.Fail).Then(promise.Resolve);
 
@@ -608,7 +643,7 @@ namespace AOFL.Promises.V1.Core
 
             AddResolveHandler(resolveHandler);
             AddFailHandler<Exception>(promise.Fail);
-            
+
             promise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
             {
                 if (State == PromiseState.Pending)
@@ -618,45 +653,6 @@ namespace AOFL.Promises.V1.Core
             };
 
             return promise;
-        }
-        
-        public IPromise<T> Chain<T, P1>(Func<P1, IPromise<T>> callback, P1 property1)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Then() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1);
-            });
-        }
-
-        public IPromise<T> Chain<T, P1, P2>(Func<P1, P2, IPromise<T>> callback, P1 property1, P2 property2)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Then() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2);
-            });
-        }
-
-        public IPromise<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IPromise<T>> callback, P1 property1, P2 property2, P3 property3)
-        {
-            if (callback == null)
-            {
-                throw new NullReferenceException("Then() callback can not be null");
-            }
-
-            return Chain(delegate
-            {
-                return callback(property1, property2, property3);
-            });
         }
         #endregion
 
@@ -872,42 +868,60 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromiseBase Chain(Func<IPromiseBase> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
 
         public IPromiseBase Chain<P1>(Func<P1, IPromiseBase> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
         }
 
         public IPromiseBase Chain<P1, P2>(Func<P1, P2, IPromiseBase> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
         }
 
         public IPromiseBase Chain<P1, P2, P3>(Func<P1, P2, P3, IPromiseBase> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
         }
 
         public IPromiseBase<T> Chain<T>(Func<IPromiseBase<T>> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
 
         public IPromiseBase<T> Chain<T, P1>(Func<P1, IPromiseBase<T>> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate
+            {
+                return callback(property1);
+            });
         }
 
         public IPromiseBase<T> Chain<T, P1, P2>(Func<P1, P2, IPromiseBase<T>> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2);
+            });
         }
 
         public IPromiseBase<T> Chain<T, P1, P2, P3>(Func<P1, P2, P3, IPromiseBase<T>> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate
+            {
+                return callback(property1, property2, property3);
+            });
         }
         #endregion
 
@@ -1184,138 +1198,81 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromise Chain(Func<T1, IPromise> callback)
         {
-            IPromise resultPromise = new Promise();
-
-            Action<T1> resolveCallback = delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                // Resolves and Fails through the resultPromise...
-                IPromise chainedPromise = callback(value);
-
-                chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
-
-                resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-                {
-                    if (chainedPromise.State == PromiseState.Pending)
-                    {
-                        chainedPromise.RequestCancel();
-                    }
-                };
-            };
-
-            AddResolveHandler(resolveCallback);
-            AddExceptionHandler<Exception>(resultPromise.Fail);
-
-            resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-            {
-                if (State == PromiseState.Pending)
-                {
-                    RequestCancel();
-                }
-            };
-
-            return resultPromise;
+                return callback(value);
+            });
         }
 
         public IPromise Chain<P1>(Func<T1, P1, IPromise> callback, P1 property1)
         {
-            return Chain(delegate(T1 value) 
+            return ChainInternal(delegate(T1 value) 
             {
-                return callback.Invoke(value, property1);
+                return callback(value, property1);
             });
         }
 
         public IPromise Chain<P1, P2>(Func<T1, P1, P2, IPromise> callback, P1 property1, P2 property2)
         {
-            return Chain(delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                return callback.Invoke(value, property1, property2);
+                return callback(value, property1, property2);
             });
         }
 
         public IPromise Chain<P1, P2, P3>(Func<T1, P1, P2, P3, IPromise> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                return callback.Invoke(value, property1, property2, property3);
+                return callback(value, property1, property2, property3);
             });
         }
 
         public IPromise<T2> Chain<T2>(Func<T1, IPromise<T2>> callback)
         {
-            IPromise<T2> resultPromise = new Promise<T2>();
-
-            Action<T1> resolveCallback = delegate (T1 value)
+            return ChainInternal(delegate(T1 value) 
             {
-                // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value);
-
-                chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
-                
-                resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-                {
-                    if (chainedPromise.State == PromiseState.Pending)
-                    {
-                        chainedPromise.RequestCancel();
-                    }
-                };
-            };
-
-            AddResolveHandler(resolveCallback);
-            AddExceptionHandler<Exception>(resultPromise.Fail);
-
-            resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-            {
-                if (State == PromiseState.Pending)
-                {
-                    RequestCancel();
-                }
-            };
-
-            return resultPromise;
+                return callback(value);
+            });
         }
 
         public IPromise<T2> Chain<T2, P1>(Func<T1, P1, IPromise<T2>> callback, P1 property1)
         {
-            IPromise<T2> resultPromise = new Promise<T2>();
-
-            Action<T1> resolveCallback = delegate (T1 value)
+            return ChainInternal(delegate (T1 value)
             {
-                // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value, property1);
-
-                chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
-                
-                resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-                {
-                    if (chainedPromise.State == PromiseState.Pending)
-                    {
-                        chainedPromise.RequestCancel();
-                    }
-                };
-            };
-
-            AddResolveHandler(resolveCallback);
-            AddExceptionHandler<Exception>(resultPromise.Fail);
-
-            resultPromise.CancelRequested += delegate (object sender, PromiseCancelRequestedEventArgs e)
-            {
-                if (State == PromiseState.Pending)
-                {
-                    RequestCancel();
-                }
-            };
-
-            return resultPromise;
+                return callback(value, property1);
+            });
         }
 
         public IPromise<T2> Chain<T2, P1, P2>(Func<T1, P1, P2, IPromise<T2>> callback, P1 property1, P2 property2)
         {
-            IPromise<T2> resultPromise = new Promise<T2>();
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2);
+            });
+        }
+
+        public IPromise<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IPromise<T2>> callback, P1 property1, P2 property2, P3 property3)
+        {
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2, property3);
+            });
+        }
+
+        public IPromise ChainInternal(Func<T1, IPromiseBase> callback)
+        {
+            if (callback == null)
+            {
+                throw new NullReferenceException("Chain() callback can not be null");
+            }
+
+            IPromise resultPromise = new Promise();
 
             Action<T1> resolveCallback = delegate (T1 value)
             {
-                // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value, property1, property2);
+                // Resolves and Fails through the resultPromise...
+                IPromiseBase chainedPromise = callback(value);
 
                 chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
 
@@ -1341,15 +1298,20 @@ namespace AOFL.Promises.V1.Core
 
             return resultPromise;
         }
-
-        public IPromise<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IPromise<T2>> callback, P1 property1, P2 property2, P3 property3)
+        
+        public IPromise<T2> ChainInternal<T2>(Func<T1, IPromiseBase<T2>> callback)
         {
+            if (callback == null)
+            {
+                throw new NullReferenceException("Chain() callback can not be null");
+            }
+
             IPromise<T2> resultPromise = new Promise<T2>();
 
             Action<T1> resolveCallback = delegate (T1 value)
             {
                 // Resolves and Fails through resultPromise...
-                IPromise<T2> chainedPromise = callback(value, property1, property2, property3);
+                IPromiseBase<T2> chainedPromise = callback(value);
 
                 chainedPromise.Catch(resultPromise.Fail).Then(resultPromise.Resolve);
 
@@ -1651,42 +1613,60 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromiseBase Chain(Func<T1, IPromiseBase> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
 
         public IPromiseBase Chain<P1>(Func<T1, P1, IPromiseBase> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1);
+            });
         }
 
         public IPromiseBase Chain<P1, P2>(Func<T1, P1, P2, IPromiseBase> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2);
+            });
         }
 
         public IPromiseBase Chain<P1, P2, P3>(Func<T1, P1, P2, P3, IPromiseBase> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2, property3);
+            });
         }
 
         public IPromiseBase<T2> Chain<T2>(Func<T1, IPromiseBase<T2>> callback)
         {
-            return Chain(callback);
+            return ChainInternal(callback);
         }
 
         public IPromiseBase<T2> Chain<T2, P1>(Func<T1, P1, IPromiseBase<T2>> callback, P1 property1)
         {
-            return Chain(callback, property1);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1);
+            });
         }
 
         public IPromiseBase<T2> Chain<T2, P1, P2>(Func<T1, P1, P2, IPromiseBase<T2>> callback, P1 property1, P2 property2)
         {
-            return Chain(callback, property1, property2);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2);
+            });
         }
 
         public IPromiseBase<T2> Chain<T2, P1, P2, P3>(Func<T1, P1, P2, P3, IPromiseBase<T2>> callback, P1 property1, P2 property2, P3 property3)
         {
-            return Chain(callback, property1, property2, property3);
+            return ChainInternal(delegate (T1 value)
+            {
+                return callback(value, property1, property2, property3);
+            });
         }
         #endregion
 
