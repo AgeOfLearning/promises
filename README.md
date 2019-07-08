@@ -446,7 +446,7 @@ IPromise<Texture2D> result = PlayOpenAnimation() // IPromise PlayOpenAnimation()
 To convert a **non-generic** promise into a **generic** one using a **synchronous callback**, use `IPromise<T> IPromise.Then<T>(Func<T> callback)`:
 ```c#
 IPromise<IMyController> result = controller.PlayAnimation()
-    .Then(delegate
+    .Then(delegate // Delegate runs synchronous operation and returns IMyController
     {
         return controller;
     });
@@ -456,7 +456,7 @@ IPromise<IMyController> result = controller.PlayAnimation()
 To convert a **generic** promise into a **non-generic** one using a **chained** promise, use `IPromise IPromise<T>.Chain(Func<T, Promise> callback)`:
 ```c#
 IPromise result = LoadPrefab()
-    .Chain(delegate(GameObject prefab) 
+    .Chain(delegate(GameObject prefab) // Delegate run asynchronous operation and returns non-generic IPromise 
     {
         var instance = Instantiate(prefab);
         return PlayAnimation(instance); // IPromise PlayAnimation(){...} - resolves with no value when animation is done playing
@@ -467,10 +467,10 @@ IPromise result = LoadPrefab()
 To convert **generic** promise with **T1** into a **generic** promise with **T2** using **chained** promise, use `IPromise<T2> IPromise<T1>.Chain<T2>(Func<T1, IPromise<T2>> callback)` method:
 ```c#
 IPromise<GameObject> result = LoadBundle("Assets.bundle")
-    .Then(delegate(AssetBundle bundle)
+    .Chain(delegate(AssetBundle bundle) // Delegate run asynchronous operation and returns IPromise<GameObject>
     {
         GameObject prefab = bundle.LoadAsset<GameObject>("name");
-        return InstantiateAndPlayAnimation(prefab); // IPromise<GameObject> InstantiateAndPlayAnimation(){...} - instantiates game object and plays animation; resolves with instance of an object  
+        return InstantiateAndPlayAnimation(prefab); // IPromise<GameObject> InstantiateAndPlayAnimation(){...} - instantiates game object and plays animation; resolves with an instance of an object  
     });
 // "result" promise resolves with instance of a GameObject after bundle is loaded, prefab is instantiated, and animation is done playing
 ```
@@ -479,7 +479,7 @@ IPromise<GameObject> result = LoadBundle("Assets.bundle")
 To convert **generic** promise with **T1** into a **generic** promise with **T2** without chaining (using then callback), use `IPromise<T2> IPromise<T1>.Then<T2>(Func<T2, T1> callback)` method:
 ```c#
 IPromise<GameObject> result = LoadBundle("Assets.bundle")
-    .Then(delegate(AssetBundle bundle)
+    .Then(delegate(AssetBundle bundle) // Delegate runs synchronous operation and returns GameObject
     {
         GameObject prefab = bundle.LoadAsset<GameObject>("name");
         GameObject instance = Instantiate(prefab);
