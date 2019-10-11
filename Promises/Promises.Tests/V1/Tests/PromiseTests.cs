@@ -36,6 +36,20 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsTrue(didCatch, "Did not catch");
             Assert.AreEqual(PromiseState.Failed, promise.State, "Did not fail");
         }
+
+        [TestMethod]
+        public void Promise_All_DoesNotInvokeIEnumerableTwice()
+        {
+            int numInvoked = 0;
+
+            IPromise promise = new Promise().All(GetResolvedPromises(5, () => 
+            {
+                numInvoked++;
+                return Promise.Resolved();
+            }));
+
+            Assert.AreEqual(5, numInvoked, "All() invoked ienumerable more then once");
+        }
         #endregion
 
         #region Promise.Any
@@ -2966,6 +2980,20 @@ namespace AOFL.Promises.Tests.V1.Tests
             IPromise promise2 = promise.All(new IPromise[] { GetBoolResolvedPromise() });
             Assert.AreEqual(promise, promise2);
         }
+
+        [TestMethod]
+        public void GenericPromise_All_DoesNotInvokeIEnumerableTwice()
+        {
+            int numInvoked = 0;
+
+            IPromise promise = new Promise<int>().All(GetResolvedPromises(5, () =>
+            {
+                numInvoked++;
+                return Promise.Resolved();
+            }));
+
+            Assert.AreEqual(5, numInvoked, "All() invoked ienumerable more then once");
+        }
         #endregion
 
         #region Promise<T>.Catch
@@ -4638,6 +4666,14 @@ namespace AOFL.Promises.Tests.V1.Tests
         private IPromise<int> AsyncSqr(int value)
         {
             return Promise<int>.Resolved(value * value);
+        }
+
+        private IEnumerable<IPromise> GetResolvedPromises(int numResolvedPromises, Func<IPromise> getPromiseCallback)
+        {
+            for (int i = 0; i < numResolvedPromises; i++)
+            {
+                yield return getPromiseCallback();
+            }
         }
         #endregion
     }

@@ -420,16 +420,19 @@ namespace AOFL.Promises.V1.Core
         {
             IPromise returnPromise = this;
 
-            int promiseCount = promises.Count();
+            int promiseCount = 0;
             int resolved = 0;
+            bool finishedIteration = false;
 
             foreach(IPromise promise in promises)
             {
+                promiseCount++;
+
                 promise.Then(delegate
                 {
                     resolved++;
 
-                    if (resolved == promiseCount && returnPromise.State == PromiseState.Pending)
+                    if (finishedIteration && resolved == promiseCount && returnPromise.State == PromiseState.Pending)
                     {
                         returnPromise.Resolve();
                     }
@@ -444,7 +447,9 @@ namespace AOFL.Promises.V1.Core
                 });
             }
 
-            if(promiseCount == 0)
+            finishedIteration = true;
+
+            if (resolved == promiseCount || promiseCount == 0)
             {
                 returnPromise.Resolve();
             }
