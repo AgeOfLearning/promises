@@ -1062,6 +1062,12 @@ namespace AOFL.Promises.V1.Core
                 _pureResolveHandlers[i]();
             }
             
+            // Invoke finally handlers
+            foreach(var handler in _finallyHandlers)
+            {
+                handler?.Invoke();
+            }
+            
             ClearPromiseHandlers();
 
             NotifyTransitionStateChanged(PromiseTransistionState.ResolvedAfterCallbacks);
