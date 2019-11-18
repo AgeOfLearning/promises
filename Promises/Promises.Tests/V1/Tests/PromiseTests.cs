@@ -3873,6 +3873,50 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreNotEqual(null, promise, "returned value is null");
         }
+
+        [TestMethod]
+        public void GenericPromise_Finally_Invokes_WhenPromiseResolved_WithCallback ()
+        {
+            bool didThen = false;
+            bool didFinally = false;
+
+            IPromise<bool> promise = GetBoolResolvedPromise ();
+            promise.Then (delegate (bool value)
+            {
+                didThen = true;
+            })
+            .Finally (delegate
+            {
+                didResolve = true;
+            });
+
+            promise.Resolve (true);
+
+            Assert.IsTrue (didThen, "did not invoke then callback");
+            Assert.IsTrue (didFinally, "did not invoke finally callback");
+        }
+
+        [TestMethod]
+        public void GenericPromise_Finally_Invokes_WhenPromiseFailed_WithCallback ()
+        {
+            bool didCatch = false;
+            bool didFinally = false;
+
+            IPromise<bool> promise = GetBoolFailedPromise ();
+            promise.Catch (delegate (bool value)
+            {
+                didCatch = true;
+            })
+            .Finally (delegate
+            {
+                didResolve = true;
+            });
+
+            promise.Resolve (true);
+
+            Assert.IsTrue (didCatch, "did not invoke catch callback");
+            Assert.IsTrue (didFinally, "did not invoke finally callback");
+        }
         #endregion
 
         #region Promise<T>.RequestCancel
