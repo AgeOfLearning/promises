@@ -3901,7 +3901,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             bool didFinally = false;
 
             IPromise<bool> promise = GetBoolFailedPromise ();
-            promise.Catch (delegate (bool value)
+            promise.Catch (delegate (Exception e)
             {
                 didCatch = true;
             })
