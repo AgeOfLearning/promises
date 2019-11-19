@@ -3887,7 +3887,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             })
             .Finally (delegate
             {
-                didResolve = true;
+                didFinally = true;
             });
 
             promise.Resolve (true);
@@ -3909,7 +3909,7 @@ namespace AOFL.Promises.Tests.V1.Tests
             })
             .Finally (delegate
             {
-                didResolve = true;
+                didFinally = true;
             });
 
             promise.Resolve (true);
