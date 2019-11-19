@@ -3890,8 +3890,6 @@ namespace AOFL.Promises.Tests.V1.Tests
                 didFinally = true;
             });
 
-            promise.Resolve (true);
-
             Assert.IsTrue (didThen, "did not invoke then callback");
             Assert.IsTrue (didFinally, "did not invoke finally callback");
         }
@@ -3911,8 +3909,6 @@ namespace AOFL.Promises.Tests.V1.Tests
             {
                 didFinally = true;
             });
-
-            promise.Resolve (true);
 
             Assert.IsTrue (didCatch, "did not invoke catch callback");
             Assert.IsTrue (didFinally, "did not invoke finally callback");
