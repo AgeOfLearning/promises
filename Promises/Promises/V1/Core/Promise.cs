@@ -1356,16 +1356,18 @@ namespace AOFL.Promises.V1.Core
             switch (State)
             {
                 case PromiseState.Failed:
-                    if (resolveCallback != null)
+                    if (resolveCallback == null)
                     {
-                        _resolveHandlers.Add(resolveCallback);
+                        throw new ArgumentNullException("resolveCallback");
                     }
+                    _resolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Pending:
-                    if (resolveCallback != null)
+                    if (resolveCallback == null)
                     {
-                        _resolveHandlers.Add(resolveCallback);
+                        throw new ArgumentNullException("resolveCallback");
                     }
+                    _resolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Resolved:
                     resolveCallback?.Invoke(_resolvedValue);
