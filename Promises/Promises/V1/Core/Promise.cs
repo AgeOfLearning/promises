@@ -726,16 +726,18 @@ namespace AOFL.Promises.V1.Core
             switch (State)
             {
                 case PromiseState.Failed:
-                    if (resolveCallback != null)
+                    if (resolveCallback == null)
                     {
-                        _pureResolveHandlers.Add(resolveCallback);
+                        throw new ArgumentNullException("resolveCallback");
                     }
+                    _pureResolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Pending:
-                    if (resolveCallback != null)
+                    if (resolveCallback == null)
                     {
-                        _pureResolveHandlers.Add(resolveCallback);
-                    }
+                        throw new ArgumentNullException("resolveCallback");
+                    }                    
+                    _pureResolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Resolved:
                     resolveCallback?.Invoke();
@@ -748,14 +750,15 @@ namespace AOFL.Promises.V1.Core
             switch (State)
             {
                 case PromiseState.Pending:
-                    if (failCallback != null)
+                    if (failCallback == null)
                     {
-                        _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
+                        throw new ArgumentNullException("failCallback");
+                    }
+                    _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
                         {
                             failCallback((TException)e);
                         }));
-                    }
-                    break;
+                        break;
                 case PromiseState.Failed:
                     if (typeof(TException).IsAssignableFrom(Error.GetType()))
                     {
@@ -1381,13 +1384,14 @@ namespace AOFL.Promises.V1.Core
             switch (State)
             {
                 case PromiseState.Pending:
-                    if (failCallback != null)
+                    if (failCallback == null)
                     {
-                        _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
-                        {
-                            failCallback((TException)e);
-                        }));
+                        throw new ArgumentNullException("failCallback");
                     }
+                    _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
+                    {
+                        failCallback((TException)e);
+                    }));
                     break;
                 case PromiseState.Failed:
                     if (typeof(TException).IsAssignableFrom(Error.GetType()))
