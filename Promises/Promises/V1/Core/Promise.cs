@@ -175,6 +175,11 @@ namespace AOFL.Promises.V1.Core
 
         public void Done(Action callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             Then(callback)
                 .Done();
         }
@@ -183,6 +188,11 @@ namespace AOFL.Promises.V1.Core
         #region Finally
         public IPromise Finally(Action callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             AddFinallyHandler(callback);
 
             return this;
@@ -226,6 +236,11 @@ namespace AOFL.Promises.V1.Core
         #region Then
         public IPromise Then(Action callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             AddResolveHandler(callback);
 
             return this;
@@ -235,7 +250,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Finally() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             return Then(delegate
@@ -248,7 +263,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Finally() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             return Then(delegate
@@ -261,7 +276,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Finally() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             return Then(delegate
@@ -274,7 +289,7 @@ namespace AOFL.Promises.V1.Core
         {
             if(callback == null)
             {
-                throw new NullReferenceException("Then() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             IPromise<T> returnPromise = new Promise<T>();
@@ -300,6 +315,11 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise<T> Then<T, P1>(Func<P1, T> callback, P1 property1)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return Then(delegate
             {
                 return callback(property1);
@@ -308,6 +328,11 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise<T> Then<T, P1, P2>(Func<P1, P2, T> callback, P1 property1, P2 property2)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return Then(delegate
             {
                 return callback(property1, property2);
@@ -316,6 +341,11 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise<T> Then<T, P1, P2, P3>(Func<P1, P2, P3, T> callback, P1 property1, P2 property2, P3 property3)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return Then(delegate
             {
                 return callback(property1, property2, property3);
@@ -324,11 +354,21 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise Then(Func<IPromise> callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return Chain(callback);
         }
 
         public IPromise<T> Then<T>(Func<IPromise<T>> callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return Chain<T>(callback);
         }
         #endregion
@@ -336,6 +376,11 @@ namespace AOFL.Promises.V1.Core
         #region Catch
         public IPromise Catch(Action<Exception> callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             AddFailHandler(callback);
 
             return this;
@@ -344,6 +389,11 @@ namespace AOFL.Promises.V1.Core
         public IPromise Catch<TException>(Action<TException> callback)
             where TException : Exception
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             AddFailHandler(callback);
 
             return this;
@@ -522,6 +572,11 @@ namespace AOFL.Promises.V1.Core
         #region Chain
         public IPromise Chain(Func<IPromise> callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return ChainInternal(delegate
             {
                 return callback();
@@ -530,6 +585,11 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise Chain<P1>(Func<P1, IPromise> callback, P1 property1)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return ChainInternal(delegate
             {
                 return callback(property1);
@@ -538,6 +598,11 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise Chain<P1, P2>(Func<P1, P2, IPromise> callback, P1 property1, P2 property2)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return ChainInternal(delegate
             {
                 return callback(property1, property2);
@@ -546,6 +611,11 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise Chain<P1, P2, P3>(Func<P1, P2, P3, IPromise> callback, P1 property1, P2 property2, P3 property3)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return ChainInternal(delegate
             {
                 return callback(property1, property2, property3);
@@ -554,6 +624,11 @@ namespace AOFL.Promises.V1.Core
 
         public IPromise<T> Chain<T>(Func<IPromise<T>> callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             return ChainInternal(delegate
             {
                 return callback();
@@ -588,7 +663,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Chain() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             IPromise promise = new Promise();
@@ -626,7 +701,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Chain() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             IPromise<T> promise = new Promise<T>();
@@ -720,22 +795,16 @@ namespace AOFL.Promises.V1.Core
         {
             if (resolveCallback == null)
             {
-                throw new NullReferenceException("Then() callback can not be null");
+                throw new ArgumentNullException(nameof(resolveCallback));
             }
 
             switch (State)
             {
                 case PromiseState.Failed:
-                    if (resolveCallback != null)
-                    {
-                        _pureResolveHandlers.Add(resolveCallback);
-                    }
+                    _pureResolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Pending:
-                    if (resolveCallback != null)
-                    {
-                        _pureResolveHandlers.Add(resolveCallback);
-                    }
+                     _pureResolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Resolved:
                     resolveCallback?.Invoke();
@@ -748,13 +817,14 @@ namespace AOFL.Promises.V1.Core
             switch (State)
             {
                 case PromiseState.Pending:
-                    if (failCallback != null)
+                    if (failCallback == null)
                     {
-                        _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
+                        throw new ArgumentNullException(nameof(failCallback));
+                    }
+                    _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
                         {
                             failCallback((TException)e);
                         }));
-                    }
                     break;
                 case PromiseState.Failed:
                     if (typeof(TException).IsAssignableFrom(Error.GetType()))
@@ -771,7 +841,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Finally() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             switch (State)
@@ -1014,6 +1084,11 @@ namespace AOFL.Promises.V1.Core
         #region Done
         public void Done(Action<T1> callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             Then(callback)
                 .Done();
         }
@@ -1122,7 +1197,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Then() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             IPromise<T2> returnPromise = new Promise<T2>();
@@ -1150,7 +1225,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Then() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             return Then(delegate(T1 value) 
@@ -1163,7 +1238,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Then() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             return Then(delegate (T1 value)
@@ -1176,7 +1251,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Then() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             return Then(delegate (T1 value)
@@ -1275,7 +1350,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Chain() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             IPromise resultPromise = new Promise();
@@ -1314,7 +1389,7 @@ namespace AOFL.Promises.V1.Core
         {
             if (callback == null)
             {
-                throw new NullReferenceException("Chain() callback can not be null");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             IPromise<T2> resultPromise = new Promise<T2>();
@@ -1353,19 +1428,18 @@ namespace AOFL.Promises.V1.Core
         #region Private Methods
         private void AddResolveHandler(Action<T1> resolveCallback)
         {
+            if (resolveCallback == null)
+            {
+                throw new ArgumentNullException(nameof(resolveCallback));
+            }
+
             switch (State)
             {
                 case PromiseState.Failed:
-                    if (resolveCallback != null)
-                    {
-                        _resolveHandlers.Add(resolveCallback);
-                    }
+                    _resolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Pending:
-                    if (resolveCallback != null)
-                    {
-                        _resolveHandlers.Add(resolveCallback);
-                    }
+                    _resolveHandlers.Add(resolveCallback);
                     break;
                 case PromiseState.Resolved:
                     resolveCallback?.Invoke(_resolvedValue);
@@ -1376,16 +1450,18 @@ namespace AOFL.Promises.V1.Core
         private void AddExceptionHandler<TException>(Action<TException> failCallback)
             where TException : Exception
         {
+            if (failCallback == null)
+            {
+                throw new ArgumentNullException(nameof(failCallback));
+            }
+
             switch (State)
             {
                 case PromiseState.Pending:
-                    if (failCallback != null)
+                    _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
                     {
-                        _catchHandlers.Add(new PromiseCatchHandler(typeof(TException), delegate (Exception e)
-                        {
-                            failCallback((TException)e);
-                        }));
-                    }
+                        failCallback((TException)e);
+                    }));
                     break;
                 case PromiseState.Failed:
                     if (typeof(TException).IsAssignableFrom(Error.GetType()))

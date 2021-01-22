@@ -406,6 +406,25 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreEqual(didCatch, true);
         }
+
+        [TestMethod]
+        public void Promise_Catch_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                GetBoolFailedPromise()
+                    .Chain(GetBoolResolvedPromise)
+                    .Catch(null);
+            }
+            catch(ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
+        }
         #endregion
 
         #region Promise.Chain
@@ -452,6 +471,26 @@ namespace AOFL.Promises.Tests.V1.Tests
         }
 
         [TestMethod]
+        public void Promise_Chain_Null_Callback_WithOneProperty()
+        {
+            bool threwNullException = false;
+
+            var promise = GetPromise();
+            try
+            {
+                promise.Chain(null, "abc");
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            promise.Resolve();
+
+            Assert.IsTrue(threwNullException, "did not throw null argument exception");
+        }
+
+        [TestMethod]
         public void Promise_Chain_InvokesNextPromise_WhenFirstPromiseResolved_WithTwoProperties()
         {
             bool didPropagate = false;
@@ -474,6 +513,26 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsTrue(didPropagate, "did not propagate");
             Assert.AreEqual("abc", p1, "Did not propagate property");
             Assert.AreEqual("def", p2, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_Chain_Null_Callback_WithTwoProperty()
+        {
+            bool threwNullException = false;
+
+            var promise = GetPromise();
+            try
+            {
+                promise.Chain(null, "abc", "def");
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            promise.Resolve();
+
+            Assert.IsTrue(threwNullException, "did not throw null argument exception");
         }
 
         [TestMethod]
@@ -502,6 +561,26 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual("abc", p1, "Did not propagate property");
             Assert.AreEqual("def", p2, "Did not propagate property");
             Assert.AreEqual("ghi", p3, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_Chain_Null_Callback_WithThreeProperty()
+        {
+            bool threwNullException = false;
+
+            var promise = GetPromise();
+            try
+            {
+                promise.Chain(null, "abc", "def", "ghi");
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            promise.Resolve();
+
+            Assert.IsTrue(threwNullException, "did not throw null argument exception");
         }
 
         [TestMethod]
@@ -659,6 +738,26 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual("abc", p1, "Did not propagate property");
             Assert.AreEqual("def", p2, "Did not propagate property");
             Assert.AreEqual("ghi", p3, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_Chain_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            var promise = GetPromise();
+            try
+            {
+                promise.Chain(null);
+            }
+            catch(ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            promise.Resolve();
+
+            Assert.IsTrue(threwNullException, "did not throw null argument exception");
         }
 
         #endregion
@@ -930,6 +1029,23 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreEqual(didResolve, true);
         }
+
+        [TestMethod]
+        public void Promise_Done_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                GetBoolResolvedPromise().Done(null);
+            }
+            catch(ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
+        }
         #endregion
 
         #region Promise.Error
@@ -960,6 +1076,27 @@ namespace AOFL.Promises.Tests.V1.Tests
             promise.Fail(new Exception());
 
             Assert.IsTrue(didInvokeCatch, "Did not invoke catch callback");
+        }
+
+        [TestMethod]
+        public void Promise_Fail_InvokesCatchCallback_Null_Callback()
+        {
+
+            bool threwNullException = false;
+
+            try
+            {
+                IPromise promise = GetPromise();
+                promise.Catch(null);
+
+                promise.Fail(new Exception());
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
         }
 
         [TestMethod]
@@ -1443,6 +1580,24 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.AreNotEqual(null, promise, "returned value is null");
         }
+
+        [TestMethod]
+        public void Promise_Finally_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                GetResolvedPromise()
+                   .Finally(null);
+            }
+            catch(ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
+        }
         #endregion
 
         #region Promise.GetProgress
@@ -1765,6 +1920,25 @@ namespace AOFL.Promises.Tests.V1.Tests
             promise.Resolve();
 
             Assert.AreEqual(didResolve, true);
+        }
+
+        [TestMethod]
+        public void Promise_Resolve_InvokesDoneCallback_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                IPromise promise = new Promise();
+                promise.Done(null);
+                promise.Resolve();
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
         }
 
         [TestMethod]
@@ -2622,6 +2796,25 @@ namespace AOFL.Promises.Tests.V1.Tests
         }
 
         [TestMethod]
+        public void Promise_Then_InvokesCallback_WhenPromiseIsResolved_WithOneProperty_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                IPromise promise = GetResolvedPromise();
+
+                promise.Then(null, "abc");
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
+        }
+
+        [TestMethod]
         public void Promise_Then_InvokesCallback_WhenPromiseIsResolved_WithTwoProperties()
         {
             bool didResolve = false;
@@ -2640,6 +2833,25 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.IsTrue(didResolve, "Did not resolve");
             Assert.AreEqual("abc", p1, "Did not propagate property");
             Assert.AreEqual("def", p2, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_Then_InvokesCallback_WhenPromiseIsResolved_WithTwoProperty_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                IPromise promise = GetResolvedPromise();
+
+                promise.Then(null, "abc", "def");
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
         }
 
         [TestMethod]
@@ -2664,6 +2876,25 @@ namespace AOFL.Promises.Tests.V1.Tests
             Assert.AreEqual("abc", p1, "Did not propagate property");
             Assert.AreEqual("def", p2, "Did not propagate property");
             Assert.AreEqual("ghi", p3, "Did not propagate property");
+        }
+
+        [TestMethod]
+        public void Promise_Then_InvokesCallback_WhenPromiseIsResolved_WithThreeProperty_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                IPromise promise = GetResolvedPromise();
+
+                promise.Then(null, "abc", "def", "ghi");
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
         }
 
 
@@ -2769,6 +3000,23 @@ namespace AOFL.Promises.Tests.V1.Tests
 
             Assert.IsTrue(sequenceResolved, "Sequence is not resolved");
         }
+
+        [TestMethod]
+        public void Promise_Then_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                GetResolvedPromise().Then(null);
+            }
+            catch(ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
+        }
         #endregion
 
         #region Promise.Then<T>
@@ -2825,6 +3073,24 @@ namespace AOFL.Promises.Tests.V1.Tests
             second.RequestCancel();
 
             Assert.IsTrue(didRequestToCancel, "Did not propagate cancellation request");
+        }
+
+        [TestMethod]
+        public void Promise_GenericThen_Null_Callback()
+        {
+            bool threwNullException = false;
+
+            try
+            {
+                IPromise promise = GetResolvedPromise();
+                IPromise<int> second = promise.Then((Func<int>) null);
+            }
+            catch (ArgumentNullException)
+            {
+                threwNullException = true;
+            }
+
+            Assert.IsTrue(threwNullException, "Null exception not thrown");
         }
         #endregion
 
