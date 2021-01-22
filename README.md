@@ -491,6 +491,12 @@ IPromise<GameObject> result = LoadBundle("Assets.bundle")
 
 
 # Changelog #
+- v1.8.3
+    - Improved handling of null arguments, all methods now throw ArgumentNullExceptions if null callback is passed
+- v1.8.2
+    - Fixed various bugs in IPromise.Finally()
+- v1.8.1
+    - Fixed various busg in IPromise.Chain() with IPromiseBase callback
 - v1.7.0
     - Added IPromise<T>.Aggregate() allowing to apply an asynchronous accumulator function over a sequence of values.
     - Added IPromise<T>.Sequence() that supports passing value through multiple sequence of promises.
