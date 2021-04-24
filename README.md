@@ -396,7 +396,6 @@ public IPromiseBase<GameObject> MyAsyncFactory()
 
 ## Example - Running a Coroutine
 The following example demonstrates how to run wrap a coroutine into a promise object, including cancellation support and progress reporting.
-Use StopCoroutine if you are using native unity coroutines instead of a [Coroutine Service](https://gitlab.aofl.com/FoundationEngineers/unity-coroutine-services/)
 
 ```c#
 public IPromise SpawnEnemies(int numEnemies)
